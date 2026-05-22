@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Box - Premium Learning Hub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-image: linear-gradient(to bottom, rgba(241, 245, 249, 0.82), rgba(226, 232, 240, 0.90)), url('https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcQocs7kTb-RL0Wi0z9uqJkM4o7jBTHD8tA_bYg0Bff74uMxHFZF4fVbrM7rNu2ga96Ga4ypcBA7ek7c7Ac');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <!-- Premium Glass Header -->
+    <header class="w-full bg-white/60 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-50 transition-all duration-300 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 flex items-center gap-2">
+                <i class="fa-solid fa-cubes text-blue-600 text-xl"></i> BOX PLATFORM
+            </div>
+            <div class="text-xs font-medium text-slate-500 bg-slate-100 border border-slate-200 rounded-full px-3 py-1 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> v1.6 • Email Verification Active
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <div class="max-w-7xl w-full mx-auto px-4 lg:px-8 grid grid-cols-1 lg:grid-cols-4 gap-8 my-auto py-8 items-center flex-grow">
+        
+        <!-- LEFT SIDEBAR -->
+        <aside class="hidden lg:flex flex-col space-y-5 bg-white/50 border border-white/60 p-5 rounded-2xl backdrop-blur-md shadow-xl shadow-slate-200/40">
+            <div class="flex items-center gap-2 border-b border-slate-200/60 pb-3">
+                <i class="fa-solid fa-shield-halved text-blue-600"></i>
+                <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700">Security System</h3>
+            </div>
+            <p class="text-xs text-slate-500 leading-relaxed">Mandatory email verification protocol is active. Fake registrations are auto-blocked from dashboard access.</p>
+        </aside>
+
+        <!-- CENTER: Main Auth Gateway -->
+        <main class="col-span-1 lg:col-span-2 flex flex-col items-center justify-center text-center space-y-6 max-w-md mx-auto w-full">
+            <div class="space-y-2">
+                <span class="text-[10px] font-bold uppercase tracking-widest bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100">Smart Village Education Init</span>
+                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+                    EduBox <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Portal</span>
+                </h1>
+            </div>
+
+            <!-- Authentication Card -->
+            <div class="w-full bg-white/70 border border-white/60 rounded-3xl p-6 shadow-2xl shadow-slate-200/80 backdrop-blur-xl space-y-5">
+                
+                <!-- Tab Switcher (Login vs Register) -->
+                <div class="flex bg-slate-100 p-1 rounded-2xl border border-slate-200/40">
+                    <button id="tab-login" class="flex-1 text-center py-2.5 text-xs font-bold rounded-xl bg-white text-slate-900 shadow-sm cursor-pointer">Login</button>
+                    <button id="tab-signup" class="flex-1 text-center py-2.5 text-xs font-bold rounded-xl text-slate-500 hover:text-slate-900 transition duration-200 cursor-pointer">Register New Account</button>
+                </div>
+
+                <!-- Master Form -->
+                <form id="auth-form" class="space-y-4 text-left">
+                    
+                    <!-- 1. Name Field (Only for Signup) -->
+                    <div id="name-field-container" class="hidden">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Full Name</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 text-xs"><i class="fa-solid fa-id-card"></i></span>
+                            <input type="text" id="auth-name" class="w-full bg-white/80 border border-slate-200 focus:border-blue-500 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-800 focus:outline-none placeholder-slate-400 shadow-inner" placeholder="Your full name">
+                        </div>
+                    </div>
+
+                    <!-- 2. Phone Field (Only for Signup) -->
+                    <div id="phone-field-container" class="hidden">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Mobile Number</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 text-xs"><i class="fa-solid fa-phone"></i></span>
+                            <input type="tel" id="auth-phone" class="w-full bg-white/80 border border-slate-200 focus:border-blue-500 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-800 focus:outline-none placeholder-slate-400 shadow-inner" placeholder="e.g. 9876543210">
+                        </div>
+                    </div>
+
+                    <!-- 3. Core Credentials (Always Visible) -->
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Email Address</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 text-xs"><i class="fa-solid fa-envelope"></i></span>
+                            <input type="email" id="auth-email" required class="w-full bg-white/80 border border-slate-200 focus:border-blue-500 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-800 focus:outline-none placeholder-slate-400 shadow-inner" placeholder="name@example.com">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Password</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 text-xs"><i class="fa-solid fa-shield-halved"></i></span>
+                            <input type="password" id="auth-password" required minlength="6" class="w-full bg-white/80 border border-slate-200 focus:border-blue-500 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-800 focus:outline-none placeholder-slate-400 shadow-inner" placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <!-- Master Action Button -->
+                    <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:opacity-95 text-white font-bold py-3 rounded-xl text-xs transition duration-150 active:scale-[0.98] cursor-pointer shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 tracking-wide uppercase mt-2">
+                        <span id="submit-btn-text">Sign In Securely</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </button>
+                </form>
+
+                <div class="flex items-center my-1 text-xs text-slate-400">
+                    <div class="flex-1 border-t border-slate-200"></div>
+                    <span class="px-3 tracking-widest text-[9px] font-bold text-slate-400">OR</span>
+                    <div class="flex-1 border-t border-slate-200"></div>
+                </div>
+
+                <button id="guest-login-btn" class="w-full flex items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-slate-700 font-bold py-2.5 px-4 rounded-xl text-xs transition-all duration-150 active:scale-[0.98] cursor-pointer shadow-sm">
+                    <span>⚡ Open Guest Sandbox</span>
+                </button>
+            </div>
+        </main>
+
+        <!-- RIGHT SIDEBAR -->
+        <aside class="hidden lg:flex flex-col space-y-5 bg-white/50 border border-white/60 p-5 rounded-2xl backdrop-blur-md shadow-xl shadow-slate-200/40">
+            <div class="flex items-center gap-2 border-b border-slate-200/60 pb-3">
+                <i class="fa-solid fa-circle-check text-indigo-600"></i>
+                <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700">Verification Status</h3>
+            </div>
+            <div class="text-xs text-slate-500">
+                <i class="fa-solid fa-envelope-open-text text-blue-500 mr-1.5"></i> A verification link will be broadcasted to your email upon registration.
+            </div>
+        </aside>
+    </div>
+
+    <!-- Footer Component -->
+    <footer class="w-full bg-white/80 backdrop-blur border-t border-slate-200 py-4">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-500">
+            <div>&copy; 2026 Box Inc. All Rights Reserved.</div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK Logic Modules -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            sendEmailVerification,
+            signInAnonymously, 
+            onAuthStateChanged,
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC-wugm5grs9NRv94xnrtODyF43JslKKnA",
+            authDomain: "openweb-7fedd.firebaseapp.com",
+            projectId: "openweb-7fedd",
+            storageBucket: "openweb-7fedd.firebasestorage.app",
+            messagingSenderId: "318160797964",
+            appId: "1:318160797964:web:1fe14036fb2a3eb8e3c929",
+            measurementId: "G-LZYJKZB70J"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // App Control States
+        let currentMode = 'login'; // 'login' or 'signup'
+
+        // UI Hooks
+        const authForm = document.getElementById('auth-form');
+        const nameFieldContainer = document.getElementById('name-field-container');
+        const phoneFieldContainer = document.getElementById('phone-field-container');
+        
+        const nameInput = document.getElementById('auth-name');
+        const phoneInput = document.getElementById('auth-phone');
+        const emailInput = document.getElementById('auth-email');
+        const passwordInput = document.getElementById('auth-password');
+        
+        const submitBtnText = document.getElementById('submit-btn-text');
+        const guestBtn = document.getElementById('guest-login-btn');
+        const tabLogin = document.getElementById('tab-login');
+        const tabSignup = document.getElementById('tab-signup');
+
+        // Global Session Listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // लॉगिन सुरक्षा कवच: बिना ईमेल वेरिफिकेशन के अंदर नहीं जाने देना है
+                if (user.email && !user.emailVerified) {
+                    console.log("Email verification link sent, awaiting user click...");
+                    return;
+                }
+                console.log("Verified session active! Routing to Dashboard...");
+                window.location.href = "dashboard.html";
+            }
+        });
+
+        // Toggle to Login Mode
+        tabLogin.addEventListener('click', () => {
+            currentMode = 'login';
+            tabLogin.className = "flex-1 text-center py-2.5 text-xs font-bold rounded-xl bg-white text-slate-900 shadow-sm cursor-pointer";
+            tabSignup.className = "flex-1 text-center py-2.5 text-xs font-bold rounded-xl text-slate-500 hover:text-slate-900 cursor-pointer";
+            
+            nameFieldContainer.classList.add('hidden');
+            phoneFieldContainer.classList.add('hidden');
+            
+            nameInput.removeAttribute('required');
+            phoneInput.removeAttribute('required');
+            
+            submitBtnText.innerText = "Sign In Securely";
+        });
+
+        // Toggle to Signup Mode
+        tabSignup.addEventListener('click', () => {
+            currentMode = 'signup';
+            tabSignup.className = "flex-1 text-center py-2.5 text-xs font-bold rounded-xl bg-white text-slate-900 shadow-sm cursor-pointer";
+            tabLogin.className = "flex-1 text-center py-2.5 text-xs font-bold rounded-xl text-slate-500 hover:text-slate-900 cursor-pointer";
+            
+            nameFieldContainer.classList.remove('hidden');
+            phoneFieldContainer.classList.remove('hidden');
+            
+            nameInput.setAttribute('required', 'true');
+            phoneInput.setAttribute('required', 'true');
+            
+            submitBtnText.innerText = "Create Verified Account";
+        });
+
+        // Location Finder
+        function captureUserLocation() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) {
+                    resolve({ status: "not_supported", lat: null, lng: null });
+                } else {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => resolve({ status: "granted", lat: pos.coords.latitude, lng: pos.coords.longitude, timestamp: Date.now() }),
+                        (err) => resolve({ status: "denied", error: err.message, lat: null, lng: null }),
+                        { timeout: 4000 }
+                    );
+                }
+            });
+        }
+
+        // Form Submit Handler
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const locationData = await captureUserLocation();
+            const originalBtnText = submitBtnText.innerText;
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            try {
+                // ================= 1. LOGIN SYSTEM =================
+                if (currentMode === 'login') {
+                    submitBtnText.innerText = "Verifying Identity...";
+                    const result = await signInWithEmailAndPassword(auth, email, password);
+                    
+                    if (!result.user.emailVerified) {
+                        submitBtnText.innerText = originalBtnText;
+                        alert("लॉगिन ब्लॉक: कृपया पहले अपने ईमेल इनबॉक्स में जाएँ और वेरिफिकेशन लिंक पर क्लिक करें!");
+                        await signOut(auth); // जब तक क्लिक न हो, लॉगआउट रखें
+                        return;
+                    }
+                    window.location.href = "dashboard.html";
+                } 
+                // ================= 2. SIGNUP SYSTEM =================
+                else {
+                    submitBtnText.innerText = "Building Secure Profile...";
+                    const fullName = nameInput.value.trim();
+                    const phoneNo = phoneInput.value.trim();
+
+                    // 1. फायरबेस में ईमेल अकाउंट बनाएं
+                    const result = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = result.user;
+
+                    // 2. तुरंत ईमेल वेरिफिकेशन लिंक भेजें
+                    await sendEmailVerification(user);
+
+                    // 3. डेटाबेस (Firestore) में सारा डेटा (Name, Email, Phone, Location) एक साथ सेव करें
+                    await initializeUserDocument(user.uid, fullName, email, phoneNo, locationData);
+
+                    submitBtnText.innerText = originalBtnText;
+                    alert("अकाउंट सफलतापूर्वक बन गया है! आपके ईमेल पर एक वेरिफिकेशन लिंक भेजा गया है। इनबॉक्स (या स्पैम फोल्डर) चेक करें और लिंक पर क्लिक करने के बाद ही लॉगिन करें।");
+                    
+                    // यूज़र को तुरंत डैशबोर्ड पर जाने से रोकने के लिए लॉगआउट करके पेज रिफ्रेश करें
+                    await signOut(auth);
+                    window.location.reload();
+                }
+            } catch (err) {
+                console.error("Authentication Error Details:", err.message);
+                submitBtnText.innerText = originalBtnText;
+                alert("System Alert: " + err.message);
+            }
+        });
+
+        // Anonymous Guest Button
+        guestBtn.addEventListener('click', async () => {
+            try {
+                const locationData = await captureUserLocation();
+                const result = await signInAnonymously(auth);
+                await initializeUserDocument(result.user.uid, "Guest Learner", "anonymous_node", "none", locationData);
+                window.location.href = "dashboard.html";
+            } catch (err) {
+                alert("Guest Login Error: " + err.message);
+            }
+        });
+
+        // Firestore Database Synchronizer
+        async function initializeUserDocument(uid, name, email, phone, geoObject) {
+            const userDocRef = doc(db, "users", uid);
+            await setDoc(userDocRef, {
+                uid: uid,
+                name: name,
+                email: email,
+                phone: phone,
+                points: 100,
+                current_streak: 1,
+                last_active_date: new Date().toISOString().split('T')[0],
+                badges_unlocked: ["registered_member"],
+                registration_location: geoObject
+            });
+            console.log("Profile successfully synchronized with Firestore Database.");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Box - Premium Learner Console</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #f1f3f1; 
+        }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col md:flex-row">
+
+    <header class="md:hidden w-full bg-white border-b border-slate-200 p-3 flex justify-between items-center sticky top-0 z-50 gap-2">
+        <div class="text-lg font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 shrink-0">
+            🔲 BOX
+        </div>
+        
+        <div id="mobile-user-status-bar" class="flex items-center bg-slate-50 border border-slate-200/70 px-2 py-1 rounded-xl gap-2 max-w-[60%] overflow-hidden shadow-inner">
+            <div class="relative w-7 h-7 shrink-0">
+                <img class="user-avatar-img-class w-7 h-7 rounded-full object-cover border border-white shadow-sm" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_x8p_w-N5iR5162-S5l0C4_I4-1lZzC6Gsw&s">
+                <input type="file" id="avatar-file-input-mobile" class="hidden avatar-uploader-trigger" accept="image/*">
+                <label for="avatar-file-input-mobile" class="absolute -bottom-1 -right-1 bg-blue-600 text-white w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] cursor-pointer shadow">
+                    <i class="fa-solid fa-plus"></i>
+                </label>
+            </div>
+            <div class="text-[10px] truncate leading-tight">
+                <p class="font-black text-slate-900 truncate user-name-class">Loading...</p>
+                <p class="text-slate-500 font-bold text-[8px] flex items-center gap-1">
+                    <span>🔥 <b class="user-streak-class">0</b></span> | <span>✨ <b class="user-points-class">0</b> XP</span>
+                </p>
+            </div>
+        </div>
+
+        <button id="mobile-menu-btn" class="text-slate-500 focus:outline-none cursor-pointer p-1 shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+    </header>
+
+    <aside id="sidebar" class="w-full md:w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-6 fixed md:sticky top-[57px] md:top-0 h-[calc(100vh-57px)] md:h-screen transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-40 overflow-y-auto">
+        <div class="space-y-6">
+            <div class="hidden md:block text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                🔲 BOX
+            </div>
+
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 text-xs">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" id="category-search" placeholder="Search categories..." class="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none">
+            </div>
+
+            <div class="space-y-3">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Categories</p>
+                <nav id="category-tree" class="space-y-2 text-xs">
+                    <button id="cat-All" class="category-btn text-left w-full px-3 py-2 rounded-xl font-semibold transition duration-150 cursor-pointer bg-blue-50 text-blue-600 border border-blue-100">
+                        ✨ All Resources
+                    </button>
+                    
+                    <details open class="group">
+                        <summary class="category-summary flex items-center justify-between font-semibold text-slate-700 cursor-pointer list-none p-2 rounded-lg hover:bg-slate-50">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-code text-blue-500 w-4"></i> Tech & Coding</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
+                        </summary>
+                        <div class="pl-6 pt-1 space-y-1 text-slate-500 flex flex-col">
+                            <button id="cat-Tech" class="category-btn text-left py-1 hover:text-blue-600 font-medium">Main Hub</button>
+                            <button id="cat-WebDev" class="category-btn text-left py-1 hover:text-blue-600 font-medium">Web Dev</button>
+                            <button id="cat-DataScience" class="category-btn text-left py-1 hover:text-blue-600 font-medium">Data Science</button>
+                            <button id="cat-AIML" class="category-btn text-left py-1 hover:text-blue-600 font-medium">AI / ML</button>
+                        </div>
+                    </details>
+
+                    <details class="group">
+                        <summary class="category-summary flex items-center justify-between font-semibold text-slate-700 cursor-pointer list-none p-2 rounded-lg hover:bg-slate-50">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-user-shield text-emerald-500 w-4"></i> Cybersecurity</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
+                        </summary>
+                        <div class="pl-6 pt-1 space-y-1 text-slate-500 flex flex-col">
+                            <button id="cat-Cybersecurity" class="category-btn text-left py-1 hover:text-emerald-600 font-medium">Main Shield</button>
+                            <button id="cat-Network" class="category-btn text-left py-1 hover:text-emerald-600 font-medium">Network Security</button>
+                            <button id="cat-Hacking" class="category-btn text-left py-1 hover:text-emerald-600 font-medium">Ethical Hacking</button>
+                        </div>
+                    </details>
+
+                    <details class="group">
+                        <summary class="category-summary flex items-center justify-between font-semibold text-slate-700 cursor-pointer list-none p-2 rounded-lg hover:bg-slate-50">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-graduation-cap text-indigo-500 w-4"></i> College Notes</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
+                        </summary>
+                        <div class="pl-6 pt-1 space-y-1 text-slate-500 flex flex-col">
+                            <button id="cat-Academics" class="category-btn text-left py-1 hover:text-indigo-600 font-medium">All Years</button>
+                            <button id="cat-Year1" class="category-btn text-left py-1 hover:text-indigo-600 font-medium">1st Year</button>
+                            <button id="cat-Year2" class="category-btn text-left py-1 hover:text-indigo-600 font-medium">2nd Year</button>
+                        </div>
+                    </details>
+
+                    <button id="cat-Books" class="category-btn text-left w-full p-2 rounded-lg font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                        <i class="fa-solid fa-book text-amber-500 w-4"></i> Books & PDF Hub
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex justify-between items-center mt-auto">
+            <button id="leaderboard-btn" class="flex items-center gap-1.5 text-xs font-bold text-amber-500 hover:underline cursor-pointer">
+                🏆 Leaderboard
+            </button>
+            <button id="logout-btn" class="text-[11px] font-bold text-rose-500 hover:text-rose-600 cursor-pointer">
+                Sign Out →
+            </button>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col lg:flex-row w-full">
+        
+        <main class="flex-1 p-4 md:p-8 space-y-6 max-w-4xl mx-auto w-full order-2 lg:order-1">
+            
+            <div class="block lg:hidden w-full">
+                <div class="bg-white border border-slate-200 p-4 rounded-2xl space-y-2.5 shadow-sm">
+                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-pen-nib text-blue-600"></i> Post & Book Reviews
+                    </h3>
+                    <input type="text" id="post-book-title-mobile" placeholder="Book Title / Subject..." class="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 rounded-xl p-2.5 text-xs focus:outline-none placeholder-slate-400 shadow-inner">
+                    <textarea id="post-book-review-mobile" rows="2" placeholder="What parts did you study? Write your insights..." class="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 rounded-xl p-2.5 text-xs focus:outline-none placeholder-slate-400 shadow-inner resize-none"></textarea>
+                    <button class="btn-submit-post-trigger w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-blue-500/10 cursor-pointer" data-target-title="post-book-title-mobile" data-target-review="post-book-review-mobile">
+                        <i class="fa-solid fa-paper-plane text-[10px]"></i> <span>Share to Network</span>
+                    </button>
+                </div>
+            </div>
+
+            <section class="w-full">
+                <div class="relative bg-white border border-slate-200 rounded-2xl shadow-sm focus-within:border-blue-500 transition duration-150">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 text-xs">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <input type="text" id="dashboard-search-input" placeholder="Search resources, books, code modules inside this network..." class="w-full bg-transparent pl-11 pr-4 py-3 text-xs text-slate-800 placeholder-slate-400 focus:outline-none">
+                </div>
+            </section>
+
+            <div class="flex flex-col sm:flex-row justify-between sm:items-end gap-2 px-1">
+                <div>
+                    <h2 class="text-xl font-extrabold tracking-tight text-slate-900" id="current-category-title">All Resources</h2>
+                    <p class="text-slate-400 text-xs mt-0.5">Select any element to unlock points and milestones safely.</p>
+                </div>
+            </div>
+
+            <section id="content-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="text-slate-400 animate-pulse col-span-full text-center py-12 text-xs font-medium">Fetching curated network data...</div>
+            </section>
+
+            <div id="load-more-container" class="text-center pt-4 hidden">
+                <button id="btn-load-more" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold py-2 px-6 rounded-xl text-xs shadow-sm transition active:scale-95 cursor-pointer">
+                    Load More Resources ↓
+                </button>
+            </div>
+        </main>
+
+        <aside id="right-aside-panel" class="hidden lg:flex w-full lg:w-80 bg-white lg:border-l border-slate-200 p-6 flex-col space-y-6 sticky top-0 h-screen overflow-y-auto order-1 lg:order-2">
+            
+            <section id="user-profile-card-desktop" class="bg-slate-50 border border-slate-200 p-4 rounded-2xl flex flex-col items-center space-y-3 shadow-inner">
+                <div class="relative w-14 h-14 group">
+                    <img class="user-avatar-img-class w-14 h-14 rounded-full object-cover border-2 border-white shadow shadow-slate-300" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_x8p_w-N5iR5162-S5l0C4_I4-1lZzC6Gsw&s">
+                    <input type="file" id="avatar-file-input-desktop" class="hidden avatar-uploader-trigger" accept="image/*">
+                    <label for="avatar-file-input-desktop" class="absolute bottom-0 right-0 bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] cursor-pointer shadow hover:bg-blue-700 transition active:scale-95">
+                        <i class="fa-solid fa-plus"></i>
+                    </label>
+                </div>
+
+                <div class="text-center w-full">
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Welcome Learner</h4>
+                    <p class="text-sm font-black text-slate-900 truncate px-2 user-name-class" id="user-name">Loading...</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 w-full text-center text-xs pt-1 border-t border-slate-200/60">
+                    <div class="bg-white p-2 border border-slate-100 rounded-xl shadow-sm">
+                        <h5 class="text-[9px] font-bold text-slate-400 uppercase">Streak</h5>
+                        <p class="font-extrabold text-orange-500 mt-0.5"><span class="user-streak-class">0</span> Days 🔥</p>
+                    </div>
+                    <div class="bg-white p-2 border border-slate-100 rounded-xl shadow-sm">
+                        <h5 class="text-[9px] font-bold text-slate-400 uppercase">Points</h5>
+                        <p class="font-extrabold text-blue-600 mt-0.5"><span class="user-points-class">0</span> XP</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-3">
+                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 px-1">
+                    <i class="fa-solid fa-pen-nib text-blue-600"></i> Post & Book Reviews
+                </h3>
+                <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-2.5 shadow-inner">
+                    <input type="text" id="post-book-title-desktop" placeholder="Book Title / Subject..." class="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-xl p-2.5 text-xs focus:outline-none placeholder-slate-400 shadow-sm">
+                    <textarea id="post-book-review-desktop" rows="3" placeholder="What parts did you study? Write your insights..." class="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-xl p-2.5 text-xs focus:outline-none placeholder-slate-400 shadow-sm resize-none"></textarea>
+                    <button class="btn-submit-post-trigger w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs shadow-md shadow-blue-500/10 active:scale-95 cursor-pointer transition flex items-center justify-center gap-1.5" data-target-title="post-book-title-desktop" data-target-review="post-book-review-desktop">
+                        <i class="fa-solid fa-paper-plane text-[10px]"></i> <span>Share to Network</span>
+                    </button>
+                </div>
+            </section>
+
+            <section class="flex-1 flex flex-col space-y-3 min-h-[220px]">
+                <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Student Posts & Network Feed</h3>
+                <div id="network-feed-container" class="space-y-3 flex-1 overflow-y-auto pr-1">
+                    <div class="text-center text-slate-400 text-xs py-4">No network activity yet...</div>
+                </div>
+            </section>
+        </aside>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, query, orderBy, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyC-wugm5grs9NRv94xnrtODyF43JslKKnA",
+        authDomain: "openweb-7fedd.firebaseapp.com",
+        projectId: "openweb-7fedd",
+        storageBucket: "openweb-7fedd.firebasestorage.app",
+        messagingSenderId: "318160797964",
+        appId: "1:318160797964:web:1fe14036fb2a3eb8e3c929"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentActiveUID = null;
+    let localMasterArray = []; 
+    let currentSelectedCategory = 'All';
+    let currentSelectedParent = null;
+    let cachedUserName = "Learner";
+    
+    // Paginated Content Limits (Prevents performance slowdowns on 100+ items)
+    let itemsToDisplayCount = 12; 
+
+    // 🔥 XSS PROTECTION ENGINE: HTML कैरेक्टर्स को न्यूट्रलाइज करने के लिए फ़ंक्शन
+    function escapeHTML(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    
+
+    // Listen for Authentication State Engine
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.replace("index.html");
+        } else {
+            currentActiveUID = user.uid;
+            
+            // पहले Firestore डेटाबेस से यूज़र प्रोफाइल और फ़ोटो लोड करेंगे
+            await fetchUserProfileData(user.uid);
+            
+            // बाकी ग्रिड और लाइव फ़ीड लोड करें
+            await initializeMasterCache(); 
+            renderGridInterface();
+            listenToNetworkFeed(); 
+        }
+    });
+    
+
+
+    async function fetchUserProfileData(uid) {
+        try {
+            const docRef = doc(db, "users", uid);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const userData = docSnap.data();
+                cachedUserName = userData.name || "Learner";
+                
+                // स्क्रीन पर टेक्स्ट डेटा रेंडर करते समय सुरक्षा
+                document.querySelectorAll('.user-name-class').forEach(el => el.innerText = cachedUserName);
+                document.querySelectorAll('.user-streak-class').forEach(el => el.innerText = userData.current_streak || 0);
+                document.querySelectorAll('.user-points-class').forEach(el => el.innerText = userData.points || 0);
+                
+                // अगर डेटाबेस में Base64 फ़ोटो कोड मौजूद है, तो उसे सेट करो
+                if(userData.photoURL) {
+                    document.querySelectorAll('.user-avatar-img-class').forEach(el => el.src = userData.photoURL);
+                }
+            }
+        } catch(e) { console.error("प्रोफाइल डेटा निकालने में एरर: ", e); }
+    }
+
+    // FINAL SUPER JUGAD: इमेज को बिना स्टोरेज/बिना ऑथ एरर के सीधे Firestore में सुरक्षित करना
+    document.addEventListener('change', async (e) => {
+        if(e.target && e.target.classList.contains('avatar-uploader-trigger')) {
+            const file = e.target.files[0];
+            if (!file || !currentActiveUID) return;
+
+            // फाइल साइज लिमिट 1MB तक (Base64 की परफॉरमेंस के लिए बेस्ट है)
+            if (file.size > 1024 * 1024) { 
+                alert("भाई, फोटो बहुत बड़ी है! कृपया 1MB से छोटी फोटो अपलोड करो।");
+                return;
+            }
+
+            const reader = new FileReader();
+            
+            reader.onloadend = async () => {
+                const base64String = reader.result; // कनवर्टेड इमेज टेक्स्ट यहाँ है
+
+                try {
+                    document.querySelectorAll('.user-name-class').forEach(el => el.innerText = "Saving...");
+
+                    // 1. सीधे फायरस्टोर डेटाबेस में सुरक्षित रूप से सेव करो
+                    await setDoc(doc(db, "users", currentActiveUID), { photoURL: base64String }, { merge: true });
+                    
+                    // 2. स्क्रीन पर तुरंत सभी जगह फोटो बदल दो
+                    document.querySelectorAll('.user-avatar-img-class').forEach(el => el.src = base64String);
+                    document.querySelectorAll('.user-name-class').forEach(el => el.innerText = cachedUserName);
+
+                    alert("प्रोफ़ाइल फ़ोटो सफलतापूर्वक डेटाबेस में सुरक्षित हो गई है! 🎉");
+                } catch(err) {
+                    console.error(err);
+                    alert("डेटाबेस एरर: " + err.message);
+                    document.querySelectorAll('.user-name-class').forEach(el => el.innerText = cachedUserName);
+                }
+            };
+
+            reader.readAsDataURL(file);
+        }
+    });
+        
+       
+    // 🛡️ UNIFIED REVIEWS SYSTEM HANDLER (XSS PROTECTED VERSION)
+    document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-submit-post-trigger');
+        if(btn) {
+            const titleId = btn.getAttribute('data-target-title');
+            const reviewId = btn.getAttribute('data-target-review');
+            
+            const titleInput = document.getElementById(titleId);
+            const reviewInput = document.getElementById(reviewId);
+
+            // इनपुट वैल्यूज को ट्रिम और एस्केप (Clean) करना ताकि हैकर पेलोड्स न्यूट्रलाइज हो जाएं
+            const title = escapeHTML(titleInput.value.trim());
+            const review = escapeHTML(reviewInput.value.trim());
+
+            if(!title || !review) {
+                alert("कृपया बुक का टाइटल और विचार दोनों बॉक्स में लिखें!");
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                btn.innerText = "Sharing...";
+
+                await addDoc(collection(db, "posts"), {
+                    uid: currentActiveUID,
+                    authorName: escapeHTML(cachedUserName), // नाम को भी क्लीन करके सेव करें
+                    bookTitle: title,
+                    reviewText: review,
+                    timestamp: new Date().getTime() 
+                });
+
+                document.querySelectorAll('#post-book-title-desktop, #post-book-title-mobile').forEach(el => el.value = "");
+                document.querySelectorAll('#post-book-review-desktop, #post-book-review-mobile').forEach(el => el.value = "");
+                alert("आपकी पोस्ट नेटवर्क पर लाइव शेयर हो गई है! 📝");
+            } catch(err) { alert("Post Error: " + err.message); } 
+            finally {
+                btn.innerHTML = `<i class="fa-solid fa-paper-plane text-[10px]"></i> <span>Share to Network</span>`;
+                btn.disabled = false;
+            }
+        }
+    });
+
+    // 🛡️ LIVE REALTIME STREAM SYNC (Double-Layer XSS Protection)
+    function listenToNetworkFeed() {
+        const feedContainer = document.getElementById('network-feed-container');
+        const twentyFourHoursAgo = new Date().getTime() - (24 * 60 * 60 * 1000);
+
+        const postsQuery = query(
+            collection(db, "posts"), 
+            where("timestamp", ">=", twentyFourHoursAgo),
+            orderBy("timestamp", "desc")
+        );
+        
+        onSnapshot(postsQuery, (snapshot) => {
+            if(!feedContainer) return;
+            if(snapshot.empty) {
+                feedContainer.innerHTML = `<div class="text-center text-slate-400 text-xs py-4">पिछले 24 घंटों में कोई एक्टिविटी नहीं हुई है...</div>`;
+                return;
+            }
+            
+            feedContainer.innerHTML = "";
+            snapshot.forEach((doc) => {
+    const data = doc.data();
+    const card = document.createElement('div');
+    card.className = "bg-slate-50 border border-slate-200/80 p-3.5 rounded-xl space-y-1.5 text-xs shadow-sm transition hover:bg-slate-100/40";
+    
+    // यहाँ डिफ़ॉल्ट आइकन या अगर डेटा में आइकन है तो वो लें
+    const iconClass = data.icon || "fa-book-open"; 
+
+    card.innerHTML = `
+        <div class="flex items-center gap-1.5 text-slate-400 font-bold text-[10px]">
+            <i class="fa-solid ${iconClass} text-blue-500 text-xs"></i> 
+            <span class="text-slate-700 font-extrabold">${escapeHTML(data.authorName) || "Anonymous Node"}</span>
+        </div>
+        <p class="text-slate-600 font-medium leading-relaxed">
+            Completed reading <b class="text-slate-900 font-bold">'${escapeHTML(data.bookTitle)}'</b>. <br/>
+            <span class="italic text-slate-500">"${escapeHTML(data.reviewText)}"</span>
+        </p>
+    `;
+    feedContainer.appendChild(card);
+});
+        }, (error) => { console.log(error); });
+    }
+
+    // Init App Master Local Memory Matrix
+    async function initializeMasterCache() {
+        try {
+            const querySnapshot = await getDocs(collection(db, "videos"));
+            localMasterArray = [];
+            querySnapshot.forEach((doc) => {
+                localMasterArray.push({ id: doc.id, ...doc.data() });
+            });
+        } catch(e) { console.error("Cache aborted: ", e); }
+    }
+
+    // RENDER METHOD LAYER WITH BUILT-IN PERFORMANCE CAP BUFFER
+   window.renderGridInterface = function() {
+    const grid = document.getElementById('content-grid');
+    const loadMoreWrapper = document.getElementById('load-more-container');
+    const searchTerm = document.getElementById('dashboard-search-input').value.toLowerCase().trim();
+    grid.innerHTML = "";
+
+    let filteredResults = localMasterArray.filter(item => {
+    if (currentSelectedCategory === 'All') return true;
+
+    // डेटा को क्लीन करें
+    const itemCat = (item.category || "").trim().toLowerCase();
+    const itemSub = (item.subCategory || "").trim().toLowerCase();
+    const targetParent = (currentSelectedParent || "").trim().toLowerCase();
+    const targetSub = (currentSelectedCategory || "").trim().toLowerCase();
+
+    // अब चेक करें
+    const matchesParent = (itemCat === targetParent);
+    const matchesSub = (itemSub === targetSub);
+
+    return matchesParent && matchesSub;
+});
+    // DEBUGGING: यह आपको console में बताएगा कि मैच क्यों नहीं हो रहा
+console.log("Selected Parent:", currentSelectedParent, "| Selected Sub:", currentSelectedCategory);
+filteredResults.forEach(item => {
+    console.log("Checking Item:", item.title, "| Cat:", item.category, "| Sub:", item.subCategory);
+});
+    // ... आगे का रेंडरिंग कोड सेम रहेगा ...
+
+        if (filteredResults.length === 0) {
+        grid.innerHTML = `<div class="text-slate-400 text-center col-span-full py-12 text-xs font-semibold">No resource nodes match current parameters.</div>`;
+        loadMoreWrapper.classList.add('hidden');
+        return;
+    }
+
+        let paginatedSlice = filteredResults.slice(0, itemsToDisplayCount);
+
+        if (filteredResults.length > itemsToDisplayCount) {
+            loadMoreWrapper.classList.remove('hidden');
+        } else {
+            loadMoreWrapper.classList.add('hidden');
+        }
+
+        paginatedSlice.forEach((data) => {
+            const card = document.createElement('div');
+            card.className = "bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-blue-500 transition duration-200 flex flex-col justify-between group shadow-sm";
+            
+            const isPdf = data.resource_type === 'pdf' || !data.yt_url_id;
+            const thumbUrl = isPdf 
+                ? "https://images.unsplash.com/photo-1568667256549-094345857637?w=500&auto=format&fit=crop&q=60" 
+                : `https://img.youtube.com/vi/${data.yt_url_id}/mqdefault.jpg`;
+
+            // एडमिन/सिस्टम जनरेटेड डेटा को भी सुरक्षित रूप से एस्केप करना बेस्ट प्रैक्टिस है
+            card.innerHTML = `
+                <div>
+                    <div class="relative aspect-video w-full overflow-hidden bg-slate-100">
+                        <img src="${thumbUrl}" alt="Cover" class="w-full h-full object-cover opacity-95 group-hover:scale-105 transition duration-300">
+                        <span class="absolute top-2.5 left-2.5 bg-white text-blue-600 font-extrabold text-[10px] px-2 py-0.5 rounded-lg border border-slate-100 shadow-sm">+${data.points_reward} XP</span>
+                        <span class="absolute bottom-2.5 left-2.5 bg-slate-900/80 text-[9px] font-bold text-white px-2 py-0.5 rounded border border-slate-800/40">${isPdf ? "📄 PDF Document" : "🎥 Video Stream"}</span>
+                    </div>
+                    <div class="p-4 space-y-1.5">
+                        <span class="text-[9px] uppercase font-bold tracking-wider text-blue-600 px-2 py-0.5 rounded bg-blue-50 border border-blue-100">${escapeHTML(data.category)}</span>
+                        <h3 class="font-extrabold text-slate-800 text-sm leading-snug line-clamp-2 pt-1">${escapeHTML(data.title)}</h3>
+                    </div>
+                </div>
+                <div class="p-4 pt-0">
+                    <button class="action-trigger-btn w-full bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-bold py-2 px-4 rounded-xl text-xs transition duration-150 active:scale-95 cursor-pointer text-center block" 
+                            data-id="${data.id}" 
+                            data-type="${isPdf ? 'pdf' : 'video'}" 
+                            data-url="${data.file_url || ''}">
+                        ${isPdf ? "Open Document" : "Open Session"}
+                    </button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        document.querySelectorAll('.action-trigger-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.target.getAttribute('data-id');
+                const type = e.target.getAttribute('data-type');
+                const url = e.target.getAttribute('data-url');
+                if(type === 'pdf') {
+                    if(url) { window.open(url, '_blank'); } 
+                    else { alert("No link attached to this document cluster."); }
+                } else {
+                    window.location.href = `classroom.html?id=${id}`;
+                }
+            });
+        });
+    }
+
+    // LOAD MORE SYSTEM ACTIVATION
+    document.getElementById('btn-load-more').addEventListener('click', () => {
+        itemsToDisplayCount += 12; 
+        renderGridInterface();
+    });
+
+    document.getElementById('dashboard-search-input').addEventListener('input', () => {
+        itemsToDisplayCount = 12; 
+        renderGridInterface();
+    });
+
+    document.getElementById('category-search').addEventListener('input', (e) => {
+        const value = e.target.value.toLowerCase().trim();
+        document.querySelectorAll('.category-summary, .category-btn').forEach(element => {
+            const text = element.innerText.toLowerCase();
+            if(text.includes(value)) {
+                element.style.display = "flex";
+                const parentDetails = element.closest('details');
+                if(parentDetails) parentDetails.open = true;
+            } else {
+                if (element.classList.contains('category-btn')) element.style.display = "none";
+            }
+        });
+    });
+
+    const categoryIds = ['All', 'Tech', 'WebDev', 'DataScience', 'AIML', 'Cybersecurity', 'Network', 'Hacking', 'Academics', 'Year1', 'Year2', 'Books'];
+    categoryIds.forEach(cat => {
+        const btn = document.getElementById(`cat-${cat}`);
+        if(btn) {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                currentSelectedCategory = cat;
+                itemsToDisplayCount = 12; 
+                document.getElementById('current-category-title').innerText = cat === 'All' ? 'All Resources' : cat;
+                
+                document.querySelectorAll('.category-btn').forEach(b => {
+                    b.classList.remove('bg-blue-50', 'text-blue-600', 'border', 'border-blue-100');
+                });
+                
+                if(e.currentTarget.id === 'cat-All' || e.currentTarget.id === 'cat-Books') {
+                    e.currentTarget.className = "category-btn text-left w-full px-3 py-2 rounded-xl font-semibold transition duration-150 cursor-pointer bg-blue-50 text-blue-600 border border-blue-100";
+                } else {
+                    e.currentTarget.classList.add('bg-blue-50', 'text-blue-600');
+                }
+                
+                renderGridInterface(); 
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+            });
+        }
+    });
+
+    document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+        document.getElementById('sidebar').classList.toggle('-translate-x-full');
+    });
+    document.getElementById('leaderboard-btn').addEventListener('click', () => {
+        window.location.href = 'leaderboard.html';
+    });
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        signOut(auth).then(() => { window.location.replace("index.html"); });
+    });
+   
+const categoryTree = document.getElementById('category-tree');
+
+onSnapshot(collection(db, "categories"), (snapshot) => {
+    // यहाँ innerHTML = "" हटा दिया है ताकि पुराने बटन न हटें
+    
+    snapshot.forEach((doc) => {
+        const catData = doc.data(); 
+        const catId = `cat-${catData.name.replace(/\s+/g, '')}`;
+        
+        // चेक करें कि क्या यह बटन पहले से मौजूद तो नहीं है
+        if (!document.getElementById(catId)) {
+            const details = document.createElement('details');
+            details.className = "group mb-2";
+            details.id = catId; // ताकि दोबारा न बने
+            
+            details.innerHTML = `
+                <summary class="cursor-pointer p-2 rounded-lg hover:bg-slate-50 font-semibold text-slate-700 list-none flex justify-between items-center text-xs">
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-folder text-blue-500 w-4"></i> ${catData.name}</span>
+                    <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
+                </summary>
+                <div class="pl-6 space-y-1 mt-1"></div>
+            `;
+
+            const subContainer = details.querySelector('div');
+            if (catData.sub && Array.isArray(catData.sub)) {
+                catData.sub.forEach(sub => {
+                    const subBtn = document.createElement('button');
+                    subBtn.className = "block text-left w-full py-1 text-slate-500 hover:text-blue-600 text-xs font-medium pl-2";
+                    subBtn.innerText = sub;
+                    
+                    // ... कोड के अंदर जहाँ subBtn.onclick है, इसे रिप्लेस करें:
+subBtn.onclick = (e) => {
+    e.stopPropagation();
+    currentSelectedCategory = sub;          // 'Math'
+    currentSelectedParent = catData.name;  // 'Class 10th'
+    
+    document.getElementById('current-category-title').innerText = `${catData.name} - ${sub}`;
+    renderGridInterface();
+    document.getElementById('sidebar').classList.add('-translate-x-full');
+};
+                    subContainer.appendChild(subBtn);
+                });
+            }
+            
+            // नया बटन ट्री में जोड़ें
+            categoryTree.appendChild(details);
+        }
+    });
+});
+
+</script>
+</body>
+</html>

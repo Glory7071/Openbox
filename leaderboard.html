@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Box - Global Leaderboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gradient-to-tr from-pink-50 via-white to-emerald-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <header class="w-full bg-white/70 backdrop-blur-md border-b border-pink-100 p-4 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <button onclick="window.location.href='dashboard.html'" class="text-sm font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-2 cursor-pointer transition">
+                <i class="fa-solid fa-arrow-left text-xs"></i> Back to Dashboard
+            </button>
+            <div class="text-xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-emerald-600">🔲 BOX ARENA</div>
+            <div class="text-xs text-emerald-700 font-mono font-bold flex items-center gap-1.5 bg-emerald-100/80 border border-emerald-300 px-2.5 py-1 rounded-full">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span>LIVE TRACKING</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 md:p-8 space-y-8 my-auto">
+        
+        <div class="text-center space-y-2">
+            <h1 class="text-3xl md:text-4xl font-black tracking-tight text-slate-900 flex items-center justify-center gap-3">
+                <i class="fa-solid fa-trophy text-amber-500 drop-shadow-md"></i> Global Leaderboard
+            </h1>
+            <p class="text-slate-600 text-sm max-w-md mx-auto font-medium">Top learners running inside the Box network framework synchronized by reward metrics.</p>
+        </div>
+
+        <section id="podium-container" class="grid grid-cols-3 gap-3 md:gap-6 items-end max-w-2xl mx-auto pt-6 min-h-[190px]">
+            <div class="col-span-full text-center text-slate-400 text-sm animate-pulse py-6">Calculating arena ranks...</div>
+        </section>
+
+        <section class="bg-white/80 border border-pink-100 rounded-2xl overflow-hidden shadow-xl shadow-pink-100/40 backdrop-blur-md">
+            <div class="p-4 bg-gradient-to-r from-pink-50/50 to-emerald-50/50 border-b border-pink-100 flex justify-between items-center">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-700">All Contestants Ledger</span>
+                <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold font-mono px-2 py-0.5 rounded border border-emerald-200 tracking-widest">REALTIME</span>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-pink-100 text-[11px] uppercase font-extrabold text-slate-500 tracking-wider bg-slate-50/50">
+                            <th class="py-3.5 px-6 w-16 text-center">Rank</th>
+                            <th class="py-3 px-6">Learner Node</th>
+                            <th class="py-3 px-6 text-right">Streak</th>
+                            <th class="py-3 px-6 text-right">Score Metric</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-rows" class="divide-y divide-pink-50 text-sm">
+                        <tr>
+                            <td colspan="4" class="py-12 text-center text-slate-400 animate-pulse">Parsing ledger arrays...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="w-full text-center py-4 text-xs font-medium text-slate-500 border-t border-pink-100 bg-white/60">
+        &copy; 2026 Box Protocol Engine. Rank Matrix Secure-v1.5
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, query, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC-wugm5grs9NRv94xnrtODyF43JslKKnA",
+            authDomain: "openweb-7fedd.firebaseapp.com",
+            projectId: "openweb-7fedd",
+            storageBucket: "openweb-7fedd.firebasestorage.app",
+            messagingSenderId: "318160797964",
+            appId: "1:318160797964:web:1fe14036fb2a3eb8e3c929"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function compileLeaderboardEngine() {
+            const podiumGrid = document.getElementById('podium-container');
+            const tableBody = document.getElementById('leaderboard-rows');
+
+            const usersQuery = query(collection(db, "users"), limit(100));
+            
+            onSnapshot(usersQuery, (snapshot) => {
+                let usersList = [];
+                snapshot.forEach(doc => {
+                    usersList.push(doc.data());
+                });
+
+                // Client-Side Sorting Engine
+                usersList.sort((a, b) => (b.points || 0) - (a.points || 0));
+                usersList = usersList.slice(0, 50);
+
+                podiumGrid.innerHTML = "";
+                tableBody.innerHTML = "";
+
+                if (usersList.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="4" class="py-12 text-center text-slate-400">No student matrices initialized inside 'users' collection yet.</td></tr>`;
+                    return;
+                }
+
+                // --- 1. BUILD TOP 3 PODIUM VISUALS ---
+                // 🌸 UI CHANGE: पोडियम को लाइट, नियॉन मिंट ग्रीन और सॉफ्ट पिंक शेड्स दिए गए हैं
+                let podiumOrder = [];
+                if (usersList[1]) podiumOrder.push({ data: usersList[1], rank: 2, height: "h-24", color: "bg-white border-slate-300 text-slate-700", medal: "🥈", ring: "border-slate-300 shadow" });
+                if (usersList[0]) podiumOrder.push({ data: usersList[0], rank: 1, height: "h-32", color: "bg-gradient-to-b from-amber-50 to-orange-50 border-amber-300 text-amber-800", medal: "🥇", ring: "border-amber-400 ring-4 ring-amber-400/20 shadow-lg" });
+                if (usersList[2]) podiumOrder.push({ data: usersList[2], rank: 3, height: "h-20", color: "bg-white border-orange-200 text-orange-800", medal: "🥉", ring: "border-orange-300 shadow" });
+
+                podiumOrder.forEach(item => {
+                    const block = document.createElement('div');
+                    block.className = `flex flex-col items-center justify-end text-center p-2.5 md:p-4 rounded-2xl border ${item.color} shadow-md bg-white/90 backdrop-blur-sm relative transition transform hover:-translate-y-1 duration-200`;
+                    
+                    const userImg = item.data.photoURL ? item.data.photoURL : "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+                    block.innerHTML = `
+                        <span class="text-2xl mb-1 filter drop-shadow-sm">${item.medal}</span>
+                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden border-2 ${item.ring} mb-2 bg-slate-100 flex-shrink-0">
+                            <img src="${userImg}" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-xs font-bold truncate w-full max-w-[100px] text-slate-900">${escapeHTML(item.data.name) || 'Learner'}</p>
+                        <p class="text-[11px] md:text-xs font-bold text-pink-600 mt-0.5">${item.data.points || 0} XP</p>
+                        <div class="w-full ${item.height} mt-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-xs font-extrabold tracking-wide text-slate-700 shadow-inner">
+                            Rank ${item.rank}
+                        </div>
+                    `;
+                    podiumGrid.appendChild(block);
+                });
+
+                // --- 2. BUILD THE COMPLETE TABLE ROWS ---
+                // 🌸 UI CHANGE: रोज़ को प्योर वाइट और टेक्स्ट को एकदम क्रिस्प डार्क किया गया है
+                usersList.forEach((user, index) => {
+                    const currentRank = index + 1;
+                    let badgeClass = "text-slate-600 bg-slate-100 border border-slate-200";
+                    
+                    if (currentRank === 1) badgeClass = "text-amber-800 bg-amber-100 border border-amber-300 font-bold shadow-sm";
+                    if (currentRank === 2) badgeClass = "text-slate-700 bg-slate-200 border border-slate-300 font-bold";
+                    if (currentRank === 3) badgeClass = "text-orange-800 bg-orange-100 border border-orange-200 font-bold";
+
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-pink-50/40 transition duration-150 border-b border-pink-50 bg-white/60 text-slate-700";
+                    
+                    const rowImg = user.photoURL ? user.photoURL : "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+                    row.innerHTML = `
+                        <td class="py-3.5 px-6 font-mono text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded-md text-xs ${badgeClass}">
+                                ${currentRank}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-6 font-semibold">
+                            <div class="flex items-center gap-3">
+                                <img src="${rowImg}" class="w-7 h-7 rounded-full object-cover border border-slate-200 bg-slate-100 shadow-sm flex-shrink-0">
+                                <span class="truncate max-w-[160px] md:max-w-xs font-semibold text-slate-900">${escapeHTML(user.name) || 'Anonymous Node'}</span>
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-6 text-right text-pink-500 font-bold font-mono text-xs tracking-wide">
+                            🔥 ${user.current_streak || 0} Days
+                        </td>
+                        <td class="py-3.5 px-6 text-right font-black text-emerald-600 font-mono tracking-wide text-base">
+                            ${user.points || 0} <span class="text-[10px] text-slate-400 font-normal">XP</span>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+            }, (error) => {
+                console.error("Leaderboard Live Sync Error: ", error);
+                tableBody.innerHTML = `<tr><td colspan="4" class="py-12 text-center text-rose-500 font-semibold">Failed to fetch ranking metrics. Check Firebase settings.</td></tr>`;
+            });
+        }
+
+        // Auth Listener Context Auth
+        window.addEventListener('DOMContentLoaded', () => {
+            const tableBody = document.getElementById('leaderboard-rows');
+            
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    compileLeaderboardEngine();
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="4" class="py-12 text-center text-rose-500 font-semibold">🔒 Authentication Required. Redirecting to access arena...</td></tr>`;
+                    setTimeout(() => {
+                        window.location.href = "index.html";
+                    }, 2000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
