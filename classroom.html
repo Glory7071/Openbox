@@ -154,7 +154,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, updateDoc, increment, setDoc, onSnapshot, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, updateDoc, increment, setDoc, onSnapshot, arrayUnion,arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC-wugm5grs9NRv94xnrtODyF43JslKKnA",
@@ -338,29 +338,40 @@
 
             const roomRef = doc(db, "study_rooms", activeRoomId);
             
+            
             onSnapshot(roomRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    const roomData = snapshot.data();
-                    renderChatMessages(roomData.messages || []);
-                    renderSharedMarkers(roomData.markers || []);
-                    
-                    if (document.activeElement !== noteInput && roomData.globalNote !== undefined) {
-                        noteInput.value = roomData.globalNote;
-                    }
-                    if(roomData.lastEmojiBlast && roomData.emojiTimestamp > Date.now() - 2500) {
-                        renderFloatingEmoji(roomData.lastEmojiBlast);
-                    }
-                } else {
-                    setDoc(roomRef, {
-                        videoId: videoFirestoreId,
-                        globalNote: "",
-                        messages: [],
-                        markers: [],
-                        lastEmojiBlast: "",
-                        emojiTimestamp: 0
-                    });
-                }
-            });
+    if (snapshot.exists()) {
+        const roomData = snapshot.data();
+        
+        // सुरक्षित रेंडरिंग
+        if (roomData.messages) renderChatMessages(roomData.messages);
+        if (roomData.markers) renderSharedMarkers(roomData.markers);
+        
+        // Note Input को तभी अपडेट करें जब यूजर टाइप न कर रहा हो
+        if (document.activeElement !== noteInput && roomData.globalNote !== undefined) {
+            noteInput.value = roomData.globalNote;
+        }
+        
+        // Emoji Logic
+        if(roomData.lastEmojiBlast && roomData.emojiTimestamp > (Date.now() - 2500)) {
+            renderFloatingEmoji(roomData.lastEmojiBlast);
+        }
+    } else {
+        // सिर्फ एक बार सेट करें, और वो भी try-catch के साथ
+        try {
+            setDoc(roomRef, {
+                videoId: videoFirestoreId,
+                globalNote: "",
+                messages: [],
+                markers: [],
+                lastEmojiBlast: "",
+                emojiTimestamp: 0
+            }).catch(e => console.error("Initial room setup failed:", e));
+        } catch (e) {
+            console.error("Critical setDoc error:", e);
+        }
+    }
+});
 
             noteInput.addEventListener('input', () => {
                 document.getElementById('save-status').innerHTML = `<i class="fa-solid fa-spinner animate-spin text-pink-500"></i> Synced...`;
@@ -464,24 +475,28 @@ window.deleteMarker = async (index) => {
 
 window.deleteChatMessage = async (index) => {
     const roomRef = doc(db, "study_rooms", activeRoomId);
+    
+    // 1. डेटाबेस से लेटेस्ट डेटा लाएं
     const snap = await getDoc(roomRef);
+    if (!snap.exists()) return;
+    
     let msgs = snap.data().messages;
-    if (msgs[index].sender !== currentUserName) return;
-    msgs.splice(index, 1);
-    await updateDoc(roomRef, { messages: msgs });
-};
-
-window.renderChatMessages = (msgArray) => {
-    const container = document.getElementById('chat-messages');
-    if (!msgArray) return;
-    container.innerHTML = msgArray.map((msg, index) => `
-        <div class="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm relative group ${msg.sender === currentUserName ? 'ml-auto border-emerald-200 bg-emerald-50' : ''}">
-            ${msg.sender === currentUserName ? `<button onclick="deleteChatMessage(${index})" class="absolute -top-1 -left-2 text-[10px] text-red-500 hover:text-red-700">✖</button>` : ''}
-            <span class="block text-[9px] font-extrabold uppercase ${msg.sender === currentUserName ? 'text-emerald-700' : 'text-purple-600'}">${msg.sender}</span>
-            <p class="text-slate-800 mt-0.5 leading-relaxed font-sans font-semibold">${msg.text}</p>
-        </div>
-    `).join('');
-    container.scrollTop = container.scrollHeight;
+    
+    // 2. सुरक्षा जांच: क्या यह मैसेज इसी यूजर का है?
+    if (msgs[index] && msgs[index].sender === currentUserName) {
+        // 3. एरे से हटाएं
+        msgs.splice(index, 1);
+        
+        // 4. डेटाबेस को अपडेट करें
+        try {
+            await updateDoc(roomRef, { messages: msgs });
+        } catch (e) {
+            console.error("Chat deletion failed: ", e);
+            alert("Delete failed, please try again.");
+        }
+    } else {
+        alert("You can only delete your own messages!");
+    }
 };
 
 window.renderSharedMarkers = (markerArray) => {
@@ -497,6 +512,24 @@ window.renderSharedMarkers = (markerArray) => {
                 <span class="text-[9px] text-slate-400 font-bold font-mono">by ${mark.author}</span>
             </div>
             <p class="text-xs text-slate-600 italic font-medium mt-1">"${mark.text}"</p>
+        </div>
+    `).join('');
+};
+
+// यह सुनिश्चित करें कि यह ग्लोबल है
+window.renderChatMessages = (msgArray) => {
+    const container = document.getElementById('chat-messages');
+    if (!container) return; 
+
+    container.innerHTML = msgArray.map((msg, index) => `
+        <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm relative group mb-2">
+            ${msg.sender === currentUserName ? `
+               
+             <button onclick="deleteChatMessage(${index})" class="...">✖</button>
+            ` : ''}
+            
+            <div class="text-[10px] font-bold text-emerald-600 mb-0.5">${msg.sender}</div>
+            <div class="text-xs text-slate-700">${msg.text}</div>
         </div>
     `).join('');
 };
