@@ -216,7 +216,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, query, orderBy, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, query, orderBy, where, onSnapshot,deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyC-wugm5grs9NRv94xnrtODyF43JslKKnA",
@@ -361,6 +361,7 @@
                     authorName: escapeHTML(cachedUserName), // नाम को भी क्लीन करके सेव करें
                     bookTitle: title,
                     reviewText: review,
+                    authorId: currentActiveUID,
                     timestamp: new Date().getTime() 
                 });
 
@@ -387,20 +388,37 @@
         );
         
         onSnapshot(postsQuery, (snapshot) => {
-            if(!feedContainer) return;
-            if(snapshot.empty) {
-                feedContainer.innerHTML = `<div class="text-center text-slate-400 text-xs py-4">पिछले 24 घंटों में कोई एक्टिविटी नहीं हुई है...</div>`;
-                return;
-            }
-            
-            feedContainer.innerHTML = "";
-            snapshot.forEach((doc) => {
+    if(!feedContainer) return;
+    if(snapshot.empty) {
+        feedContainer.innerHTML = `<div class="text-center text-slate-400 text-xs py-4">कोई एक्टिविटी नहीं है...</div>`;
+        return;
+    }
+    
+    feedContainer.innerHTML = "";
+    // ... ऊपर का कोड वैसा ही रहने दें
+snapshot.forEach((doc) => {
     const data = doc.data();
     const card = document.createElement('div');
     card.className = "bg-slate-50 border border-slate-200/80 p-3.5 rounded-xl space-y-1.5 text-xs shadow-sm transition hover:bg-slate-100/40";
     
-    // यहाँ डिफ़ॉल्ट आइकन या अगर डेटा में आइकन है तो वो लें
     const iconClass = data.icon || "fa-book-open"; 
+
+    // ✅ यहाँ चेक करें: क्या यह पोस्ट लॉगिन यूजर की है?
+    let actionButtons = `
+        <button onclick="reportPost('${doc.id}', '${escapeHTML(data.authorName)}')" 
+                class="text-[9px] text-red-400 hover:text-red-600 font-bold mt-2 flex items-center gap-1">
+            <i class="fa-solid fa-flag"></i> Report
+        </button>
+    `;
+
+    if (data.uid === currentActiveUID) { // अगर पोस्ट यूजर की है
+        actionButtons += `
+            <button onclick="deleteMyPost('${doc.id}')" 
+                    class="text-[9px] text-slate-400 hover:text-red-600 font-bold mt-2 flex items-center gap-1 ml-3">
+                <i class="fa-solid fa-trash"></i> Delete
+            </button>
+        `;
+    }
 
     card.innerHTML = `
         <div class="flex items-center gap-1.5 text-slate-400 font-bold text-[10px]">
@@ -411,10 +429,13 @@
             Completed reading <b class="text-slate-900 font-bold">'${escapeHTML(data.bookTitle)}'</b>. <br/>
             <span class="italic text-slate-500">"${escapeHTML(data.reviewText)}"</span>
         </p>
+        <div class="flex">
+            ${actionButtons}
+        </div>
     `;
     feedContainer.appendChild(card);
 });
-        }, (error) => { console.log(error); });
+}, (error) => { console.log(error); });
     }
 
     // Init App Master Local Memory Matrix
@@ -584,21 +605,24 @@ filteredResults.forEach(item => {
 const categoryTree = document.getElementById('category-tree');
 
 onSnapshot(collection(db, "categories"), (snapshot) => {
-    // यहाँ innerHTML = "" हटा दिया है ताकि पुराने बटन न हटें
-    
     snapshot.forEach((doc) => {
         const catData = doc.data(); 
         const catId = `cat-${catData.name.replace(/\s+/g, '')}`;
         
-        // चेक करें कि क्या यह बटन पहले से मौजूद तो नहीं है
+        // 1. डायनामिक आइकन सेट करें (अगर डेटाबेस में आइकन नहीं है, तो 'fa-folder' डिफ़ॉल्ट रहेगा)
+        const iconClass = catData.icon || "fa-folder"; 
+        
         if (!document.getElementById(catId)) {
             const details = document.createElement('details');
             details.className = "group mb-2";
-            details.id = catId; // ताकि दोबारा न बने
+            details.id = catId;
             
+            // 2. यहाँ ${iconClass} का उपयोग करें
             details.innerHTML = `
                 <summary class="cursor-pointer p-2 rounded-lg hover:bg-slate-50 font-semibold text-slate-700 list-none flex justify-between items-center text-xs">
-                    <span class="flex items-center gap-2"><i class="fa-solid fa-folder text-blue-500 w-4"></i> ${catData.name}</span>
+                    <span class="flex items-center gap-2">
+                        <i class="fa-solid ${iconClass} text-blue-500 w-4"></i> ${catData.name}
+                    </span>
                     <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
                 </summary>
                 <div class="pl-6 space-y-1 mt-1"></div>
@@ -611,26 +635,50 @@ onSnapshot(collection(db, "categories"), (snapshot) => {
                     subBtn.className = "block text-left w-full py-1 text-slate-500 hover:text-blue-600 text-xs font-medium pl-2";
                     subBtn.innerText = sub;
                     
-                    // ... कोड के अंदर जहाँ subBtn.onclick है, इसे रिप्लेस करें:
-subBtn.onclick = (e) => {
-    e.stopPropagation();
-    currentSelectedCategory = sub;          // 'Math'
-    currentSelectedParent = catData.name;  // 'Class 10th'
-    
-    document.getElementById('current-category-title').innerText = `${catData.name} - ${sub}`;
-    renderGridInterface();
-    document.getElementById('sidebar').classList.add('-translate-x-full');
-};
+                    subBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        currentSelectedCategory = sub;
+                        currentSelectedParent = catData.name;
+                        document.getElementById('current-category-title').innerText = `${catData.name} - ${sub}`;
+                        renderGridInterface();
+                        document.getElementById('sidebar').classList.add('-translate-x-full');
+                    };
                     subContainer.appendChild(subBtn);
                 });
             }
-            
-            // नया बटन ट्री में जोड़ें
             categoryTree.appendChild(details);
         }
     });
 });
+window.reportPost = async (postId, authorName) => {
+    if(!confirm("क्या आप इस पोस्ट को रिपोर्ट करना चाहते हैं?")) return;
+    
+    const reason = prompt("रिपोर्ट करने का कारण लिखें:");
+    if(!reason) return;
 
+    try {
+        await addDoc(collection(db, "reports"), {
+            postId: postId,
+            reportedBy: cachedUserName, // जो यूजर रिपोर्ट कर रहा है
+            authorName: authorName,
+            reason: reason,
+            timestamp: new Date().getTime()
+        });
+        alert("रिपोर्ट दर्ज कर ली गई है। एडमिन जल्द ही इसे देखेंगे।");
+    } catch(e) {
+        alert("एरर: " + e.message);
+    }
+};
+// पोस्ट डिलीट करने का फंक्शन
+window.deleteMyPost = async (postId) => {
+    if(!confirm("क्या आप वाकई अपनी यह पोस्ट डिलीट करना चाहते हैं?")) return;
+    try {
+        await deleteDoc(doc(db, "posts", postId)); // यहाँ 'posts' कलेक्शन का नाम चेक कर लें
+        alert("पोस्ट सफलतापूर्वक डिलीट कर दी गई है।");
+    } catch(e) {
+        alert("Error: " + e.message);
+    }
+};
 </script>
 </body>
 </html>
