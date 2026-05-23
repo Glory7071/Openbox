@@ -18,7 +18,29 @@
             background-attachment: fixed;
         }
     </style>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glow-effect { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+
+        /* कार्ड्स को हवा में तैराने के लिए */
+.floating-card { animation: float-animation 6s ease-in-out infinite; }
+@keyframes float-animation {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* सिक्योरिटी कार्ड के लिए चमक (Glow) */
+.pulse-glow { animation: pulse-shadow 2s infinite; }
+@keyframes pulse-shadow {
+    0%, 100% { box-shadow: 0 0 10px rgba(37, 99, 235, 0.2); }
+    50% { box-shadow: 0 0 25px rgba(37, 99, 235, 0.5); }
+}
+    </style>
+    
 </head>
+
 <body class="text-slate-800 min-h-screen flex flex-col justify-between overflow-x-hidden">
 
     <!-- Premium Glass Header -->
@@ -37,14 +59,23 @@
     <div class="max-w-7xl w-full mx-auto px-4 lg:px-8 grid grid-cols-1 lg:grid-cols-4 gap-8 my-auto py-8 items-center flex-grow">
         
         <!-- LEFT SIDEBAR -->
-        <aside class="hidden lg:flex flex-col space-y-5 bg-white/50 border border-white/60 p-5 rounded-2xl backdrop-blur-md shadow-xl shadow-slate-200/40">
-            <div class="flex items-center gap-2 border-b border-slate-200/60 pb-3">
-                <i class="fa-solid fa-shield-halved text-blue-600"></i>
-                <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700">Security System</h3>
-            </div>
-            <p class="text-xs text-slate-500 leading-relaxed">Mandatory email verification protocol is active. Fake registrations are auto-blocked from dashboard access.</p>
-        </aside>
-
+        <aside class="hidden lg:flex flex-col space-y-5 bg-white/50 border border-white/60 p-6 rounded-3xl backdrop-blur-xl floating-card" style="animation-delay: 1s;">
+    <div class="flex items-center gap-3 border-b border-slate-200/60 pb-4">
+        <div class="p-2 bg-indigo-100 rounded-lg">
+            <i class="fa-solid fa-rocket text-indigo-600 animate-bounce"></i>
+        </div>
+        <h3 class="font-bold text-xs uppercase tracking-widest text-slate-700">Our Mission</h3>
+    </div>
+    <div class="space-y-3 text-xs text-slate-500">
+        <p class="leading-relaxed italic text-indigo-600 font-bold">"Learn without the noise."</p>
+        <ul class="space-y-2">
+            <li>• <b>Zero Distractions:</b> No ads.</li>
+            <li>• <b>Curated Resources:</b> Handpicked.</li>
+            <li>• <b>Gamified:</b> Earn XP & streaks.</li>
+        </ul>
+    </div>
+</aside>
+           
         <!-- CENTER: Main Auth Gateway -->
         <main class="col-span-1 lg:col-span-2 flex flex-col items-center justify-center text-center space-y-6 max-w-md mx-auto w-full">
             <div class="space-y-2">
@@ -128,9 +159,38 @@
             <div class="text-xs text-slate-500">
                 <i class="fa-solid fa-envelope-open-text text-blue-500 mr-1.5"></i> A verification link will be broadcasted to your email upon registration.
             </div>
+            <div class="flex items-center gap-3 border-b border-slate-200/60 pb-4">
+        <div class="p-2 bg-blue-100 rounded-lg group-hover:rotate-12 transition-transform">
+            <i class="fa-solid fa-shield-halved text-blue-600"></i>
+        </div>
+        <h3 class="font-bold text-xs uppercase tracking-widest text-slate-700">Security System</h3>
+    </div>
+    <p class="text-xs text-slate-500 leading-relaxed">
+        Mandatory email verification protocol is active. 
+        <span class="block mt-2 font-semibold text-blue-600 animate-pulse">Fake registrations are auto-blocked.</span>
+    </p>
         </aside>
     </div>
 
+    <div class="max-w-md mx-auto my-12 p-6 bg-white/20 backdrop-blur-lg border border-white/30 rounded-3xl shadow-2xl pulse-glow">
+    <div class="flex flex-col items-center text-center">
+        <div class="relative mb-4">
+            <img src="https://i.pinimg.com/736x/e7/05/12/e705120077589613fc869cfa8dc61d85.jpg" 
+                 alt="Owner" class="w-24 h-24 rounded-full border-4 border-white shadow-lg animate-float">
+            <div class="absolute bottom-0 right-0 bg-emerald-500 w-5 h-5 rounded-full border-2 border-white"></div>
+        </div>
+        <h3 class="text-lg font-black text-slate-900">Gaurav Yadav</h3>
+        <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full mt-1">Founder & Lead Architect</p>
+        <p class="text-[11px] text-slate-600 mt-4 leading-relaxed italic">
+            "Building the future of smart education. I believe in simple, clean, and powerful code."
+        </p>
+        <div class="flex gap-4 mt-6">
+            <a href="#" class="text-slate-600 hover:text-blue-600 transition"><i class="fa-brands fa-github text-lg"></i></a>
+            <a href="https://www.linkedin.com/in/gaurav-yadav-32388b332?utm_source=share_via&utm_content=profile&utm_medium=member_android" class="text-slate-600 hover:text-indigo-600 transition"><i class="fa-brands fa-linkedin text-lg"></i></a>
+            <a href="#" class="text-slate-600 hover:text-rose-600 transition"><i class="fa-solid fa-envelope text-lg"></i></a>
+        </div>
+    </div>
+</div>
     <!-- Footer Component -->
     <footer class="w-full bg-white/80 backdrop-blur border-t border-slate-200 py-4">
         <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-500">
@@ -150,7 +210,7 @@
             onAuthStateChanged,
             signOut 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC-wugm5grs9NRv94xnrtODyF43JslKKnA",
@@ -226,6 +286,21 @@
             
             submitBtnText.innerText = "Create Verified Account";
         });
+
+        async function checkMaintenance() {
+    const docRef = doc(db, "system", "settings");
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists() && docSnap.data().maintenanceMode === true) {
+        document.body.innerHTML = `
+            <div class="min-h-screen flex flex-col items-center justify-center text-center p-6">
+                <h1 class="text-4xl font-black text-rose-600">🚧 UNDER MAINTENANCE</h1>
+                <p class="text-slate-500 mt-2">System update in progress. Please return shortly.</p>
+            </div>
+        `;
+    }
+}
+checkMaintenance(); 
 
         // Location Finder
         function captureUserLocation() {
@@ -323,6 +398,24 @@
             });
             console.log("Profile successfully synchronized with Firestore Database.");
         }
+
+        // यह कोड अपनी मुख्य JS में डालें
+async function trackVisit() {
+    // सिर्फ एक बार चेक करने के लिए कि सेशन में विजिट हो चुकी है या नहीं
+    if (!sessionStorage.getItem('visited')) {
+        const visitRef = doc(db, "analytics", "traffic");
+        try {
+            await updateDoc(visitRef, {
+                total_visits: increment(1),
+                last_seen: new Date()
+            });
+            sessionStorage.setItem('visited', 'true'); // विजिट दर्ज कर ली गई
+        } catch (e) {
+            console.log("Analytics error: ", e);
+        }
+    }
+}
+trackVisit();
     </script>
 </body>
 </html>
