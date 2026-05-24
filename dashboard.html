@@ -125,6 +125,23 @@
                     Load More Resources ↓
                 </button>
             </div>
+            <footer class="w-full bg-white border-t border-slate-200 py-8 px-4 mt-8">
+    <div class="max-w-4xl mx-auto text-center space-y-4">
+        <div class="text-[11px] text-slate-500 leading-relaxed max-w-2xl mx-auto">
+            <p class="font-semibold text-slate-700 mb-1">Disclaimer & Credits</p>
+            All educational resources, videos, and study materials shared on EduBox are the property of their respective owners. 
+            This platform is designed solely for <span class="font-bold text-slate-800">educational and non-commercial purposes</span>. 
+            We strive to provide proper attribution to all creators. If you believe any content violates copyright, please contact us for immediate removal.
+        </div>
+
+        <div class="flex flex-col md:flex-row justify-center items-center gap-4 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+            <p>© 2026 EduBox Learner Console</p>
+            <span class="hidden md:block">|</span>
+            <a href="#" class="hover:text-blue-600 transition">Privacy Policy</a>
+            <a href="#" class="hover:text-blue-600 transition">Terms of Service</a>
+        </div>
+    </div>
+</footer>
         </main>
 
         <aside id="right-aside-panel" class="hidden lg:flex w-full lg:w-80 bg-white lg:border-l border-slate-200 p-6 flex-col space-y-6 sticky top-0 h-screen overflow-y-auto order-1 lg:order-2">
@@ -176,7 +193,7 @@
             </section>
         </aside>
     </div>
-    
+   
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -265,7 +282,7 @@
             if (!file || !currentActiveUID) return;
 
             // फाइल साइज लिमिट 1MB तक (Base64 की परफॉरमेंस के लिए बेस्ट है)
-            if (file.size > 1024 * 1024) { 
+            if (file.size > 5 * 1024 * 1024) { 
                 alert("भाई, फोटो बहुत बड़ी है! कृपया 1MB से छोटी फोटो अपलोड करो।");
                 return;
             }
@@ -285,7 +302,7 @@
                     document.querySelectorAll('.user-avatar-img-class').forEach(el => el.src = base64String);
                     document.querySelectorAll('.user-name-class').forEach(el => el.innerText = cachedUserName);
 
-                    alert("प्रोफ़ाइल फ़ोटो सफलतापूर्वक डेटाबेस में सुरक्षित हो गई है! 🎉");
+                    alert("Profile picture updated! Looking good! 🎉");
                 } catch(err) {
                     console.error(err);
                     alert("डेटाबेस एरर: " + err.message);
@@ -313,7 +330,7 @@
             const review = escapeHTML(reviewInput.value.trim());
 
             if(!title || !review) {
-                alert("कृपया बुक का टाइटल और विचार दोनों बॉक्स में लिखें!");
+                alert("Please enter both the book title and your thoughts in the boxes!");
                 return;
             }
 
@@ -332,7 +349,7 @@
 
                 document.querySelectorAll('#post-book-title-desktop, #post-book-title-mobile').forEach(el => el.value = "");
                 document.querySelectorAll('#post-book-review-desktop, #post-book-review-mobile').forEach(el => el.value = "");
-                alert("आपकी पोस्ट नेटवर्क पर लाइव शेयर हो गई है! 📝");
+                alert("Post shared successfully! 📝");
             } catch(err) { alert("Post Error: " + err.message); } 
             finally {
                 btn.innerHTML = `<i class="fa-solid fa-paper-plane text-[10px]"></i> <span>Share to Network</span>`;
@@ -568,7 +585,7 @@ filteredResults.forEach(item => {
     });
 });
 
-    const categoryIds = ['All', 'DataScience', 'AIML'];
+    const categoryIds = ['All', 'Tech', 'WebDev', 'DataScience', 'AIML', 'Cybersecurity', 'Network', 'Hacking', , 'Year1', 'Year2', 'Books'];
     categoryIds.forEach(cat => {
         const btn = document.getElementById(`cat-${cat}`);
         if(btn) {
