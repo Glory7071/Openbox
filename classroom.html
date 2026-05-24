@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Box - Secure Classroom Stream & Peer Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-gradient-to-tr from-slate-100/80 via-slate-50/70 to-emerald-50/60 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <header class="w-full bg-white border-b border-slate-200/80 p-4 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto flex justify-between items-center gap-4">
+            <button onclick="window.location.href='dashboard.html'" class="text-sm font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-2 cursor-pointer shrink-0 transition">
+                <i class="fa-solid fa-arrow-left text-xs"></i> Back to Dashboard
+            </button>
+            <div class="text-lg md:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-emerald-600 tracking-wider truncate">🔲 BOX STREAM</div>
+            <div class="flex items-center gap-2 shrink-0">
+                <div id="room-badge" class="hidden md:block bg-slate-100 text-slate-700 border border-slate-200 rounded-full px-3 py-1 text-xs font-mono font-bold">
+                    Room: Individual Node
+                </div>
+                <div id="reward-badge" class="bg-amber-500/10 text-amber-700 border border-amber-300 rounded-full px-3 py-1 text-xs font-black shadow-sm">
+                    +0 XP Reward
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="emoji-universe" class="fixed inset-0 pointer-events-none z-40 overflow-hidden"></div>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        
+        <div class="lg:col-span-2 space-y-5">
+            <div class="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-300/80 bg-black shadow-xl">
+                <div id="player" class="w-full h-full"></div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                <div class="space-y-1.5 truncate">
+                    <span id="video-category" class="text-[10px] uppercase font-extrabold tracking-widest text-emerald-700 px-2.5 py-0.5 rounded-full bg-emerald-100 border border-emerald-200">Loading...</span>
+                    <h1 id="video-title" class="text-lg font-black text-slate-900 truncate">Fetching Session Parameters...</h1>
+                </div>
+                <button id="share-room-btn" onclick="copyAndShare()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md cursor-pointer transition-all transform hover:-translate-y-0.5">
+    <i class="fa-solid fa-link"></i> Generate Share Link
+</button>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-sm">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+                    <div class="flex items-center gap-3">
+                        <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+                            <i class="fa-solid fa-file-pen text-pink-500"></i> Smart Classroom Notes
+                        </h3>
+                        <div class="flex bg-slate-100 p-0.5 rounded-lg text-[10px] font-bold border border-slate-200">
+                            <button class="px-2 py-0.5 rounded bg-white shadow-sm text-slate-800">Shared Room</button>
+                        </div>
+                    </div>
+                    <span id="save-status" class="text-[10px] text-slate-400 font-medium font-mono"><i class="fa-solid fa-cloud-check text-emerald-500"></i> Sync Ready</span>
+                </div>
+                <div class="relative">
+                    <textarea id="note-input" rows="5" placeholder="Write down structural definitions here... Auto-saves instantly for the entire room." class="w-full bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-400 rounded-xl p-3.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none shadow-inner transition-all resize-none leading-relaxed"></textarea>
+                    <button id="pin-time-btn" class="absolute bottom-3 right-3 bg-white hover:bg-slate-50 text-emerald-600 border border-slate-200 px-3 py-1.5 rounded-xl text-[10px] font-bold flex items-center gap-1.5 cursor-pointer shadow-sm transition-all">
+                        <i class="fa-solid fa-thumbtack text-pink-400"></i> Tag Video Timestamp (<span id="live-timer-btn" class="font-mono">0:00</span>)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-4 lg:sticky lg:top-24">
+            
+            <div class="grid grid-cols-2 bg-slate-200/70 p-1 rounded-xl border border-slate-300/60 shadow-inner">
+                <button id="tab-chat-btn" onclick="switchRightTab('chat')" class="py-2 text-xs font-bold rounded-lg text-center cursor-pointer transition-all bg-white text-emerald-600 shadow-sm border border-slate-200/40">
+                    <i class="fa-solid fa-comments mr-1.5 text-pink-500"></i>Peer Chat
+                </button>
+                <button id="tab-notes-btn" onclick="switchRightTab('notes')" class="py-2 text-xs font-bold rounded-lg text-center cursor-pointer transition-all text-slate-500 hover:text-slate-800">
+                    <i class="fa-solid fa-timeline mr-1.5 text-purple-500"></i>Shared Markers
+                </button>
+            </div>
+
+            <div id="panel-chat" class="space-y-4">
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-sm">
+                    <div class="flex justify-between text-xs border-b border-slate-100 pb-2">
+                        <span class="text-slate-500 font-medium">Stream Analytics:</span>
+                        <span id="tracker-status" class="text-emerald-600 font-bold animate-pulse">Syncing Playback...</span>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                            <span>TOTAL UNIQUE WATCHTIME</span>
+                            <span id="progress-text" class="font-mono">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200">
+                            <div id="integrity-bar" class="bg-gradient-to-r from-pink-400 via-purple-400 to-emerald-400 h-full w-0 transition-all duration-300"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-2xl flex flex-col h-[340px] overflow-hidden shadow-md">
+                    <div class="p-3 bg-slate-50 border-b border-slate-200/80 flex justify-between items-center">
+                        <span class="text-[10px] font-extrabold text-slate-500 tracking-wider uppercase">💬 Active Room Sync Stream</span>
+                        <span id="peer-count" class="text-[9px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-200 font-bold">1 Node Online</span>
+                    </div>
+                    
+                    <div id="chat-messages" class="flex-1 p-3 overflow-y-auto space-y-2.5 custom-scrollbar bg-slate-50/50">
+                        <div class="text-slate-400 text-center italic text-[11px] py-8">No peer sessions active. Send code to connect.</div>
+                    </div>
+
+                    <div class="px-2 py-1.5 bg-slate-50 border-t border-slate-200 flex items-center gap-2 justify-around text-xs shrink-0">
+                        <button onclick="triggerBlastEmoji('🔥')" class="hover:scale-125 transition cursor-pointer">🔥</button>
+                        <button onclick="triggerBlastEmoji('💡')" class="hover:scale-125 transition cursor-pointer">💡</button>
+                        <button onclick="triggerBlastEmoji('😮')" class="hover:scale-125 transition cursor-pointer">😮</button>
+                        <button onclick="triggerBlastEmoji('👏')" class="hover:scale-125 transition cursor-pointer">👏</button>
+                        <button onclick="triggerBlastEmoji('❓')" class="hover:scale-125 transition cursor-pointer">❓</button>
+                    </div>
+
+                    <div class="p-2 bg-white border-t border-slate-200 flex gap-2">
+                        <input type="text" id="chat-input" placeholder="Type message to room..." class="flex-1 bg-slate-50 border border-slate-200 focus:border-emerald-400 focus:bg-white rounded-xl px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none transition-all">
+                        <button id="send-chat-btn" class="w-9 h-9 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl flex items-center justify-center text-xs shadow cursor-pointer transition-all">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-notes" class="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 hidden h-[460px] flex flex-col shadow-md">
+    <div class="text-[11px] font-extrabold text-slate-500 tracking-wider uppercase border-b border-slate-100 pb-2">
+        📌 Shared Markers & Notes
+    </div>
+    
+    <div class="flex gap-2">
+        <input type="text" id="simple-note-input" placeholder="Add a quick note..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
+        <button onclick="addSimpleNote()" class="bg-slate-800 text-white px-3 py-2 rounded-xl text-xs font-bold">Add</button>
+    </div>
+
+    <div id="timestamps-container" class="flex-1 overflow-y-auto space-y-2 custom-scrollbar">
+        </div>
+</div>
+
+        </div>
+    </main>
+
+    <footer class="w-full text-center py-4 text-xs font-medium text-slate-400 border-t border-slate-200 bg-white">
+        &copy; 2026 Box Protocol Engine. Node Synchronizer Secure-v1.6
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, increment, setDoc, onSnapshot, arrayUnion,arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC-wugm5grs9NRv94xnrtODyF43JslKKnA",
+            authDomain: "openweb-7fedd.firebaseapp.com",
+            projectId: "openweb-7fedd",
+            storageBucket: "openweb-7fedd.firebasestorage.app",
+            messagingSenderId: "318160797964",
+            appId: "1:318160797964:web:1fe14036fb2a3eb8e3c929"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUserUID = null;
+        let currentUserName = "Anonymous Student";
+        let videoFirestoreId = null;
+        let videoPointsReward = 0;
+        let ytPlayerNode = null;
+        let telemetryPollTimer = null;
+        
+        // 🚀 SMART TRACKING STRUCT: यूनिक सेकंड्स ट्रैक करने के लिए Set Object
+        let uniqueSecondsWatched = new Set();
+        let pointsDispatched = false;
+        let hasRestoredPosition = false;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        videoFirestoreId = urlParams.get('id');
+        let activeRoomId = urlParams.get('room') || null; 
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "index.html";
+            } else {
+                currentUserUID = user.uid;
+                currentUserName = user.email ? user.email.split('@')[0] : "Student_" + user.uid.substring(0,4);
+                
+                if(videoFirestoreId) {
+                    await fetchVideoNodeDetails();
+                    initializeCollaborationEngine();
+                } else {
+                    alert("No resource data found.");
+                    window.location.href = "dashboard.html";
+                }
+            }
+        });
+
+        
+
+        async function fetchVideoNodeDetails() {
+            try {
+                const docRef = doc(db, "videos", videoFirestoreId);
+                const snap = await getDoc(docRef);
+                if(snap.exists()) {
+                    const data = snap.data();
+                    videoPointsReward = data.points_reward || 10;
+                    
+                    document.getElementById('video-title').innerText = data.title;
+                    document.getElementById('video-category').innerText = data.category;
+                    document.getElementById('reward-badge').innerText = `+${videoPointsReward} XP Reward`;
+                    
+                    initializeIframeStream(data.yt_url_id);
+                } else {
+                    alert("Resource node does not exist.");
+                    window.location.href = "dashboard.html";
+                }
+            } catch(e) { console.error("Handshake Failed: ", e); }
+        }
+
+        function initializeIframeStream(videoIdString) {
+            if (typeof YT !== 'undefined' && YT.loaded) {
+                buildPlayerInstance(videoIdString);
+            } else {
+                window.onYouTubeIframeAPIReady = () => buildPlayerInstance(videoIdString);
+            }
+        }
+
+        function buildPlayerInstance(idStr) {
+            ytPlayerNode = new YT.Player('player', {
+                videoId: idStr,
+                playerVars: {
+                    'controls': 1,
+                    'rel': 0,
+                    'modestbranding': 1
+                },
+                events: {
+                    'onStateChange': handlePlayerStateTransition
+                }
+            });
+        }
+
+        
+
+        function handlePlayerStateTransition(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                // 🚀 RESUME LAUNCHER: पहली बार प्ले होने पर पुरानी सेव की हुई पोजीशन पर जम्प कराओ
+                if (!hasRestoredPosition) {
+                    const savedTime = localStorage.getItem(`box_resume_${videoFirestoreId}_${currentUserUID}`);
+                    if (savedTime) {
+                        ytPlayerNode.seekTo(parseFloat(savedTime), true);
+                    }
+                    hasRestoredPosition = true;
+                }
+
+                document.getElementById('tracker-status').className = "text-emerald-600 font-bold";
+                document.getElementById('tracker-status').innerText = "Streaming Active...";
+                
+                clearInterval(telemetryPollTimer);
+                telemetryPollTimer = setInterval(calculateSmartProgress, 1000);
+            } else {
+                clearInterval(telemetryPollTimer);
+                if(event.data == YT.PlayerState.PAUSED) {
+                    document.getElementById('tracker-status').className = "text-amber-600 font-bold";
+                    document.getElementById('tracker-status').innerText = "Paused";
+                }
+            }
+        }
+
+        // 🚀 ADVANCED POINT TRACKER LOGIC (यूजर आगे-पीछे करे, कोई पाबंदी नहीं, केवल यूनिक वॉचटाइम काउंट होगा)
+        function calculateSmartProgress() {
+            if (!ytPlayerNode || pointsDispatched) return;
+
+            const currentTime = ytPlayerNode.getCurrentTime();
+            const totalDuration = ytPlayerNode.getDuration();
+            if (!totalDuration) return;
+
+            updateLiveTimestampDisplay(currentTime);
+
+            // 1. रीज़्यूम के लिए करंट टाइम को लोकल स्टोरेज में सेव करते रहो
+            localStorage.setItem(`box_resume_${videoFirestoreId}_${currentUserUID}`, currentTime);
+
+            // 2. इस विशिष्ट सेकंड को सेट (Set) में जोड़ लो
+            const roundedSecond = Math.floor(currentTime);
+            if (roundedSecond >= 0 && roundedSecond <= totalDuration) {
+                uniqueSecondsWatched.add(roundedSecond);
+            }
+
+            // 3. प्रोग्रेस कैलकुलेशन: कुल यूनिक देखे गए सेकंड / वीडियो की कुल अवधि
+            const uniqueSecondsCount = uniqueSecondsWatched.size;
+            const progressPercentage = Math.min(Math.floor((uniqueSecondsCount / totalDuration) * 100), 100);
+            
+            document.getElementById('integrity-bar').style.width = `${progressPercentage}%`;
+            document.getElementById('progress-text').innerText = `${progressPercentage}%`;
+
+            // 4. अगर उसने वीडियो के 90% हिस्से के बराबर के यूनिक सेकंड्स देख लिए हैं, तो प्वाइंट्स दे दो!
+            if (progressPercentage >= 90 && !pointsDispatched) {
+                pointsDispatched = true;
+                clearInterval(telemetryPollTimer);
+                dispatchSecurePointsReward();
+            }
+        }
+
+        function updateLiveTimestampDisplay(time) {
+            const mins = Math.floor(time / 60);
+            const secs = Math.floor(time % 60);
+            document.getElementById('live-timer-btn').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        async function dispatchSecurePointsReward() {
+            document.getElementById('tracker-status').className = "text-emerald-600 font-black animate-bounce";
+            document.getElementById('tracker-status').innerText = "🔐 Reward Ledger Synced!";
+            try {
+                const userRef = doc(db, "users", currentUserUID);
+                await updateDoc(userRef, { points: increment(videoPointsReward) });
+                alert(`🎉 Awesome! You successfully completed 90% unique watching node and earned +${videoPointsReward} XP!`);
+            } catch(err) { console.error("XP Allocation Failed: ", err); }
+        }
+
+        // Real-Time Room Core Setup
+        let debounceTimer;
+        const noteInput = document.getElementById('note-input');
+
+        function initializeCollaborationEngine() {
+            if (!activeRoomId) {
+                activeRoomId = `room_${videoFirestoreId}_${currentUserUID}`;
+            } else {
+                document.getElementById('room-badge').innerText = `Room: Connected Arena`;
+                document.getElementById('room-badge').className = "bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full px-3 py-1 text-xs font-mono font-bold animate-pulse";
+                document.getElementById('peer-count').innerText = "Multi-Node Active";
+            }
+
+            const roomRef = doc(db, "study_rooms", activeRoomId);
+            
+            
+            onSnapshot(roomRef, (snapshot) => {
+    if (snapshot.exists()) {
+        const roomData = snapshot.data();
+        
+        // सुरक्षित रेंडरिंग
+        if (roomData.messages) renderChatMessages(roomData.messages);
+        if (roomData.markers) renderSharedMarkers(roomData.markers);
+        
+        // Note Input को तभी अपडेट करें जब यूजर टाइप न कर रहा हो
+        if (document.activeElement !== noteInput && roomData.globalNote !== undefined) {
+            noteInput.value = roomData.globalNote;
+        }
+        
+        // Emoji Logic
+        if(roomData.lastEmojiBlast && roomData.emojiTimestamp > (Date.now() - 2500)) {
+            renderFloatingEmoji(roomData.lastEmojiBlast);
+        }
+    } else {
+        // सिर्फ एक बार सेट करें, और वो भी try-catch के साथ
+        try {
+            setDoc(roomRef, {
+                videoId: videoFirestoreId,
+                globalNote: "",
+                messages: [],
+                markers: [],
+                lastEmojiBlast: "",
+                emojiTimestamp: 0
+            }).catch(e => console.error("Initial room setup failed:", e));
+        } catch (e) {
+            console.error("Critical setDoc error:", e);
+        }
+    }
+});
+
+            noteInput.addEventListener('input', () => {
+                document.getElementById('save-status').innerHTML = `<i class="fa-solid fa-spinner animate-spin text-pink-500"></i> Synced...`;
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(async () => {
+                    try {
+                        await updateDoc(roomRef, { globalNote: noteInput.value });
+                        document.getElementById('save-status').innerHTML = `<i class="fa-solid fa-cloud-check text-emerald-600"></i> Saved to Cluster`;
+                    } catch (err) { document.getElementById('save-status').innerText = "Sync Fail"; }
+                }, 1200);
+            });
+        }
+
+        async function sendPeerChatMessage() {
+            const input = document.getElementById('chat-input');
+            const messageText = input.value.trim();
+            if (!messageText) return;
+
+            const roomRef = doc(db, "study_rooms", activeRoomId);
+            try {
+                await updateDoc(roomRef, {
+                    messages: arrayUnion({
+                        sender: currentUserName,
+                        text: messageText,
+                        timestamp: Date.now()
+                    })
+                });
+                input.value = "";
+            } catch (e) { console.error("Chat dispatch error: ", e); }
+        }
+
+        document.getElementById('send-chat-btn').addEventListener('click', sendPeerChatMessage);
+        document.getElementById('chat-input').addEventListener('keydown', (e) => { if(e.key === 'Enter') sendPeerChatMessage(); });
+
+        window.triggerBlastEmoji = async function(emojiChar) {
+            const roomRef = doc(db, "study_rooms", activeRoomId);
+            try {
+                await updateDoc(roomRef, {
+                    lastEmojiBlast: emojiChar,
+                    emojiTimestamp: Date.now()
+                });
+            } catch(e) {}
+        }
+
+        function renderFloatingEmoji(emoji) {
+            const container = document.getElementById('emoji-universe');
+            for(let i=0; i<6; i++) {
+                const el = document.createElement('div');
+                el.innerText = emoji;
+                el.className = "absolute text-3xl opacity-80 transition-all duration-2000 ease-out";
+                el.style.left = Math.random() * 80 + 10 + "%";
+                el.style.bottom = "0%";
+                container.appendChild(el);
+                
+                setTimeout(() => {
+                    el.style.transform = `translateY(-600px) scale(1.5) rotate(${Math.random()*60 - 30}deg)`;
+                    el.style.opacity = "0";
+                }, 50);
+                setTimeout(() => el.remove(), 2100);
+            }
+        }
+
+        document.getElementById('pin-time-btn').addEventListener('click', async () => {
+            if (!ytPlayerNode) return;
+            const currentTimeRaw = ytPlayerNode.getCurrentTime();
+            const mins = Math.floor(currentTimeRaw / 60);
+            const secs = Math.floor(currentTimeRaw % 60);
+            const formattedTime = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+            const snapshotSnippet = prompt(`Description for frame [${formattedTime}]:`);
+            if (!snapshotSnippet) return;
+
+            const roomRef = doc(db, "study_rooms", activeRoomId);
+            try {
+                await updateDoc(roomRef, {
+                    markers: arrayUnion({
+                        author: currentUserName,
+                        timeSeconds: currentTimeRaw,
+                        timeLabel: formattedTime,
+                        text: snapshotSnippet
+                    })
+                });
+                switchRightTab('notes');
+            } catch(err) { console.error("Marker log failure: ", err); }
+        });
+
+        // 🎨 UI UPDATE: चैट बबल्स को क्लीन सफ़ेद और बॉर्डर्स दी ताकि नाम और मैसेज एकदम साफ़ दिखें
+        
+
+
+    // --- SECURE DELETE & RENDER LOGIC ---
+
+window.deleteMarker = async (index) => {
+    const roomRef = doc(db, "study_rooms", activeRoomId);
+    const snap = await getDoc(roomRef);
+    let markers = snap.data().markers;
+    if (markers[index].author !== currentUserName) return;
+    markers.splice(index, 1);
+    await updateDoc(roomRef, { markers: markers });
+};
+
+window.deleteChatMessage = async (index) => {
+    const roomRef = doc(db, "study_rooms", activeRoomId);
+    
+    // 1. डेटाबेस से लेटेस्ट डेटा लाएं
+    const snap = await getDoc(roomRef);
+    if (!snap.exists()) return;
+    
+    let msgs = snap.data().messages;
+    
+    // 2. सुरक्षा जांच: क्या यह मैसेज इसी यूजर का है?
+    if (msgs[index] && msgs[index].sender === currentUserName) {
+        // 3. एरे से हटाएं
+        msgs.splice(index, 1);
+        
+        // 4. डेटाबेस को अपडेट करें
+        try {
+            await updateDoc(roomRef, { messages: msgs });
+        } catch (e) {
+            console.error("Chat deletion failed: ", e);
+            alert("Delete failed, please try again.");
+        }
+    } else {
+        alert("You can only delete your own messages!");
+    }
+};
+
+window.renderSharedMarkers = (markerArray) => {
+    const container = document.getElementById('timestamps-container');
+    if (!markerArray) return;
+    container.innerHTML = markerArray.map((mark, index) => `
+        <div class="bg-white border border-slate-200 p-3 rounded-xl shadow-sm relative group">
+            ${mark.author === currentUserName ? `<button onclick="deleteMarker(${index})" class="absolute top-2 right-2 text-red-500 hover:text-red-700">✖</button>` : ''}
+            <div class="flex items-center justify-between">
+                <button class="bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 cursor-pointer" onclick="ytPlayerNode.seekTo(${mark.timeSeconds}, true)">
+                    <i class="fa-solid fa-circle-play text-[9px]"></i> Sync ${mark.timeLabel || ''}
+                </button>
+                <span class="text-[9px] text-slate-400 font-bold font-mono">by ${mark.author}</span>
+            </div>
+            <p class="text-xs text-slate-600 italic font-medium mt-1">"${mark.text}"</p>
+        </div>
+    `).join('');
+};
+
+// यह सुनिश्चित करें कि यह ग्लोबल है
+window.renderChatMessages = (msgArray) => {
+    const container = document.getElementById('chat-messages');
+    if (!container) return; 
+
+    container.innerHTML = msgArray.map((msg, index) => `
+        <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm relative group mb-2">
+            ${msg.sender === currentUserName ? `
+               
+             <button onclick="deleteChatMessage(${index})" class="...">✖</button>
+            ` : ''}
+            
+            <div class="text-[10px] font-bold text-emerald-600 mb-0.5">${msg.sender}</div>
+            <div class="text-xs text-slate-700">${msg.text}</div>
+        </div>
+    `).join('');
+};
+
+window.copyAndShare = function() {
+    const url = `${window.location.origin}${window.location.pathname}?id=${videoFirestoreId}&room=${activeRoomId}`;
+    navigator.clipboard.writeText(url).then(() => {
+        alert("🔗 Room link copied!");
+    });
+};
+       
+
+        window.switchRightTab = function(targetTab) {
+            const chatBtn = document.getElementById('tab-chat-btn');
+            const notesBtn = document.getElementById('tab-notes-btn');
+            const chatPanel = document.getElementById('panel-chat');
+            const notesPanel = document.getElementById('panel-notes');
+
+            if(targetTab === 'chat') {
+                chatBtn.className = "py-2 text-xs font-bold rounded-lg text-center cursor-pointer transition-all bg-white text-emerald-600 shadow-sm border border-slate-200/40";
+                notesBtn.className = "py-2 text-xs font-bold rounded-lg text-center cursor-pointer transition-all text-slate-500 hover:text-slate-800";
+                chatPanel.classList.remove('hidden');
+                notesPanel.classList.add('hidden');
+            } else {
+                notesBtn.className = "py-2 text-xs font-bold rounded-lg text-center cursor-pointer transition-all bg-white text-emerald-600 shadow-sm border border-slate-200/40";
+                chatBtn.className = "py-2 text-xs font-bold rounded-lg text-center cursor-pointer transition-all text-slate-500 hover:text-slate-800";
+                notesPanel.classList.remove('hidden');
+                notesPanel.classList.replace('hidden', 'flex');
+                chatPanel.classList.add('hidden');
+            }
+        }
+
+        // 2. सिंपल नोट सेव करने का फंक्शन
+    window.addSimpleNote = async function() {
+        const noteText = document.getElementById('simple-note-input').value;
+        if(!noteText) return;
+
+        const roomRef = doc(db, "study_rooms", activeRoomId);
+        await updateDoc(roomRef, {
+            markers: arrayUnion({
+                type: 'simple',
+                text: noteText,
+                author: currentUserName,
+                timestamp: Date.now()
+            })
+        });
+        document.getElementById('simple-note-input').value = "";
+    };
+    
+    </script>
+</body>
+</html>
