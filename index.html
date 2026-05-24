@@ -133,14 +133,18 @@
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 text-xs"><i class="fa-solid fa-shield-halved"></i></span>
                             <input type="password" id="auth-password" required minlength="6" class="w-full bg-white/80 border border-slate-200 focus:border-blue-500 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-800 focus:outline-none placeholder-slate-400 shadow-inner" placeholder="••••••••">
                         </div>
+                        <div class="text-right mt-1.5">
+        <a href="#" id="forgot-password-link" class="text-[10px] text-blue-600 hover:underline font-bold cursor-pointer">Forgot Password?</a>
+    </div>
                     </div>
 
                     <!-- Master Action Button -->
                     <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:opacity-95 text-white font-bold py-3 rounded-xl text-xs transition duration-150 active:scale-[0.98] cursor-pointer shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 tracking-wide uppercase mt-2">
                         <span id="submit-btn-text">Sign In Securely</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
                     </button>
+                    
                 </form>
-
+                 
                 <div class="flex items-center my-1 text-xs text-slate-400">
                     <div class="flex-1 border-t border-slate-200"></div>
                     <span class="px-3 tracking-widest text-[9px] font-bold text-slate-400">OR</span>
@@ -214,6 +218,7 @@
             sendEmailVerification,
             signInAnonymously, 
             onAuthStateChanged,
+            sendPasswordResetEmail,
             signOut 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc,increment,updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -331,27 +336,10 @@ checkMaintenance();
             submitBtnText.innerText = "Create Verified Account";
         });
 
-        
-
-        // Location Finder
-        function captureUserLocation() {
-            return new Promise((resolve) => {
-                if (!navigator.geolocation) {
-                    resolve({ status: "not_supported", lat: null, lng: null });
-                } else {
-                    navigator.geolocation.getCurrentPosition(
-                        (pos) => resolve({ status: "granted", lat: pos.coords.latitude, lng: pos.coords.longitude, timestamp: Date.now() }),
-                        (err) => resolve({ status: "denied", error: err.message, lat: null, lng: null }),
-                        { timeout: 4000 }
-                    );
-                }
-            });
-        }
-
         // Form Submit Handler
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const locationData = await captureUserLocation();
+    
             const originalBtnText = submitBtnText.innerText;
 
             const email = emailInput.value.trim();
@@ -385,7 +373,7 @@ checkMaintenance();
                     await sendEmailVerification(user);
 
                     // 3. डेटाबेस (Firestore) में सारा डेटा (Name, Email, Phone, Location) एक साथ सेव करें
-                    await initializeUserDocument(user.uid, fullName, email, phoneNo, locationData);
+                    await initializeUserDocument(user.uid, fullName, email, phoneNo, null);
 
                     submitBtnText.innerText = originalBtnText;
                     alert("अकाउंट सफलतापूर्वक बन गया है! आपके ईमेल पर एक वेरिफिकेशन लिंक भेजा गया है। इनबॉक्स (या स्पैम फोल्डर) चेक करें और लिंक पर क्लिक करने के बाद ही लॉगिन करें।");
@@ -404,9 +392,9 @@ checkMaintenance();
         // Anonymous Guest Button
         guestBtn.addEventListener('click', async () => {
             try {
-                const locationData = await captureUserLocation();
+                
                 const result = await signInAnonymously(auth);
-                await initializeUserDocument(result.user.uid, "Guest Learner", "anonymous_node", "none", locationData);
+                await initializeUserDocument(result.user.uid, "Guest Learner", "anonymous_node", "none", null);
                 window.location.href = "dashboard.html";
             } catch (err) {
                 alert("Guest Login Error: " + err.message);
@@ -416,6 +404,7 @@ checkMaintenance();
         // Firestore Database Synchronizer
         async function initializeUserDocument(uid, name, email, phone, geoObject) {
             const userDocRef = doc(db, "users", uid);
+            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             await setDoc(userDocRef, {
                 uid: uid,
                 name: name,
@@ -425,9 +414,9 @@ checkMaintenance();
                 current_streak: 1,
                 last_active_date: new Date().toISOString().split('T')[0],
                 badges_unlocked: ["registered_member"],
-                registration_location: geoObject
+                timezone: userTimezone
             });
-            console.log("Profile successfully synchronized with Firestore Database.");
+            console.log("Profile synchronized with Timezone:", userTimezone);
         }
 
         // यह कोड अपनी मुख्य JS में डालें
@@ -457,6 +446,28 @@ installBtn.addEventListener('click', async () => {
         installBtn.classList.add('hidden');
     }
 });
+
+// FORGOT PASSWORD LOGIC
+const forgotLink = document.getElementById('forgot-password-link');
+
+if (forgotLink) {
+    forgotLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const email = emailInput.value.trim(); // ऊपर वाला ईमेल इनपुट
+
+        if (!email) {
+            alert("कृपया पहले अपना ईमेल एड्रेस लिखें।");
+            return;
+        }
+
+        try {
+            await sendPasswordResetEmail(auth, email);
+            alert("पासवर्ड रीसेट लिंक आपके ईमेल पर भेज दिया गया है!");
+        } catch (err) {
+            alert("Error: " + err.message);
+        }
+    });
+}
     </script>
 </body>
 </html>
