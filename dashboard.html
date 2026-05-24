@@ -20,9 +20,11 @@
 <body class="text-slate-800 min-h-screen flex flex-col md:flex-row">
 
     <header class="md:hidden w-full bg-white border-b border-slate-200 p-3 flex justify-between items-center sticky top-0 z-50 gap-2">
-        <div class="text-lg font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 shrink-0">
-            🔲 BOX
-        </div>
+    <div class="text-lg font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 shrink-0">
+        🔲 BOX
+    </div>
+    
+    <div class="flex items-center gap-2 flex-1 overflow-hidden justify-end">
         
         <div id="mobile-user-status-bar" class="flex items-center bg-slate-50 border border-slate-200/70 px-2 py-1 rounded-xl gap-2 max-w-[60%] overflow-hidden shadow-inner">
             <div class="relative w-7 h-7 shrink-0">
@@ -34,16 +36,21 @@
             </div>
             <div class="text-[10px] truncate leading-tight">
                 <p class="font-black text-slate-900 truncate user-name-class">Loading...</p>
-                <p class="text-slate-500 font-bold text-[8px] flex items-center gap-1">
-                    <span>🔥 <b class="user-streak-class">0</b></span> | <span>✨ <b class="user-points-class">0</b> XP</span>
-                </p>
+                <p class="text-slate-500 font-bold text-[8px]">✨ <b class="user-points-class">0</b> XP</p>
             </div>
         </div>
 
-        <button id="mobile-menu-btn" class="text-slate-500 focus:outline-none cursor-pointer p-1 shrink-0">
+        <button id="logout-btn-mobile" class="text-rose-500 hover:bg-rose-50 p-2 rounded-full transition-all shrink-0">
+            <i class="fa-solid fa-right-from-bracket text-xs"></i>
+        </button>
+
+        <button id="mobile-menu-btn" class="text-slate-500 p-1 shrink-0">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
-    </header>
+    </div>
+</header>
+   <div id="mobile-category-bar" class="lg:hidden flex overflow-x-auto gap-2 py-3 px-4 scrollbar-hide border-b border-slate-100 bg-white sticky top-[57px] z-40 transition-all duration-300">
+    </div>
 
     <aside id="sidebar" class="w-full md:w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-6 fixed md:sticky top-[57px] md:top-0 h-[calc(100vh-57px)] md:h-screen transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-40 overflow-y-auto">
         <div class="space-y-6">
@@ -57,55 +64,12 @@
                 </span>
                 <input type="text" id="category-search" placeholder="Search categories..." class="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none">
             </div>
+            
 
             <div class="space-y-3">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Categories</p>
                 <nav id="category-tree" class="space-y-2 text-xs">
-                    <button id="cat-All" class="category-btn text-left w-full px-3 py-2 rounded-xl font-semibold transition duration-150 cursor-pointer bg-blue-50 text-blue-600 border border-blue-100">
-                        ✨ All Resources
-                    </button>
-                    
-                    <details open class="group">
-                        <summary class="category-summary flex items-center justify-between font-semibold text-slate-700 cursor-pointer list-none p-2 rounded-lg hover:bg-slate-50">
-                            <span class="flex items-center gap-2"><i class="fa-solid fa-code text-blue-500 w-4"></i> Tech & Coding</span>
-                            <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
-                        </summary>
-                        <div class="pl-6 pt-1 space-y-1 text-slate-500 flex flex-col">
-                            <button id="cat-Tech" class="category-btn text-left py-1 hover:text-blue-600 font-medium">Main Hub</button>
-                            <button id="cat-WebDev" class="category-btn text-left py-1 hover:text-blue-600 font-medium">Web Dev</button>
-                            <button id="cat-DataScience" class="category-btn text-left py-1 hover:text-blue-600 font-medium">Data Science</button>
-                            <button id="cat-AIML" class="category-btn text-left py-1 hover:text-blue-600 font-medium">AI / ML</button>
-                        </div>
-                    </details>
-
-                    <details class="group">
-                        <summary class="category-summary flex items-center justify-between font-semibold text-slate-700 cursor-pointer list-none p-2 rounded-lg hover:bg-slate-50">
-                            <span class="flex items-center gap-2"><i class="fa-solid fa-user-shield text-emerald-500 w-4"></i> Cybersecurity</span>
-                            <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
-                        </summary>
-                        <div class="pl-6 pt-1 space-y-1 text-slate-500 flex flex-col">
-                            <button id="cat-Cybersecurity" class="category-btn text-left py-1 hover:text-emerald-600 font-medium">Main Shield</button>
-                            <button id="cat-Network" class="category-btn text-left py-1 hover:text-emerald-600 font-medium">Network Security</button>
-                            <button id="cat-Hacking" class="category-btn text-left py-1 hover:text-emerald-600 font-medium">Ethical Hacking</button>
-                        </div>
-                    </details>
-
-                    <details class="group">
-                        <summary class="category-summary flex items-center justify-between font-semibold text-slate-700 cursor-pointer list-none p-2 rounded-lg hover:bg-slate-50">
-                            <span class="flex items-center gap-2"><i class="fa-solid fa-graduation-cap text-indigo-500 w-4"></i> College Notes</span>
-                            <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
-                        </summary>
-                        <div class="pl-6 pt-1 space-y-1 text-slate-500 flex flex-col">
-                            <button id="cat-Academics" class="category-btn text-left py-1 hover:text-indigo-600 font-medium">All Years</button>
-                            <button id="cat-Year1" class="category-btn text-left py-1 hover:text-indigo-600 font-medium">1st Year</button>
-                            <button id="cat-Year2" class="category-btn text-left py-1 hover:text-indigo-600 font-medium">2nd Year</button>
-                        </div>
-                    </details>
-
-                    <button id="cat-Books" class="category-btn text-left w-full p-2 rounded-lg font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                        <i class="fa-solid fa-book text-amber-500 w-4"></i> Books & PDF Hub
-                    </button>
-                </nav>
+    </nav>
             </div>
         </div>
 
@@ -113,7 +77,7 @@
             <button id="leaderboard-btn" class="flex items-center gap-1.5 text-xs font-bold text-amber-500 hover:underline cursor-pointer">
                 🏆 Leaderboard
             </button>
-            <button id="logout-btn" class="text-[11px] font-bold text-rose-500 hover:text-rose-600 cursor-pointer">
+            <button id="logout-btn-desktop" class="text-[11px] font-bold text-rose-500 hover:text-rose-600 cursor-pointer">
                 Sign Out →
             </button>
         </div>
@@ -212,6 +176,7 @@
             </section>
         </aside>
     </div>
+    
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -439,38 +404,63 @@ snapshot.forEach((doc) => {
     }
 
     // Init App Master Local Memory Matrix
-    async function initializeMasterCache() {
-        try {
-            const querySnapshot = await getDocs(collection(db, "videos"));
-            localMasterArray = [];
-            querySnapshot.forEach((doc) => {
-                localMasterArray.push({ id: doc.id, ...doc.data() });
-            });
-        } catch(e) { console.error("Cache aborted: ", e); }
+    // Init App Master Local Memory Matrix (इसे रिप्लेस करें)
+async function initializeMasterCache() {
+    try {
+        // 1. यहाँ query और orderBy का इस्तेमाल करें
+        const resourcesRef = collection(db, "videos");
+        const q = query(resourcesRef, orderBy("orderIndex", "asc")); // आर्डर के हिसाब से सेट किया
+
+        const querySnapshot = await getDocs(q);
+        
+        localMasterArray = [];
+        querySnapshot.forEach((doc) => {
+            localMasterArray.push({ id: doc.id, ...doc.data() });
+        });
+        
+        console.log("Master Cache Loaded with Order:", localMasterArray);
+    } catch(e) { 
+        console.error("Cache aborted: ", e); 
     }
+}
 
     // RENDER METHOD LAYER WITH BUILT-IN PERFORMANCE CAP BUFFER
-   window.renderGridInterface = function() {
+  window.renderGridInterface = function() {
     const grid = document.getElementById('content-grid');
     const loadMoreWrapper = document.getElementById('load-more-container');
-    const searchTerm = document.getElementById('dashboard-search-input').value.toLowerCase().trim();
+    
+    // सर्च बार की वैल्यू लें
+    const searchInput = document.getElementById('dashboard-search-input');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : "";
+    
     grid.innerHTML = "";
 
     let filteredResults = localMasterArray.filter(item => {
-    if (currentSelectedCategory === 'All') return true;
+        // 1. मौजूदा कैटेगरी लॉजिक (इसको बिल्कुल नहीं छेड़ा है)
+        let matchesCategory = false;
+        if (currentSelectedCategory === 'All' && !currentSelectedParent) {
+            matchesCategory = true;
+        } else {
+            const itemCat = (item.category || "").trim().toLowerCase();
+            const itemSub = (item.subCategory || "").trim().toLowerCase();
+            const targetParent = (currentSelectedParent || "").trim().toLowerCase();
+            const targetSub = (currentSelectedCategory || "").trim().toLowerCase();
 
-    // डेटा को क्लीन करें
-    const itemCat = (item.category || "").trim().toLowerCase();
-    const itemSub = (item.subCategory || "").trim().toLowerCase();
-    const targetParent = (currentSelectedParent || "").trim().toLowerCase();
-    const targetSub = (currentSelectedCategory || "").trim().toLowerCase();
+            if (itemCat === targetParent) {
+                if (targetSub === 'all') matchesCategory = true;
+                else if (itemSub === targetSub) matchesCategory = true;
+            }
+        }
 
-    // अब चेक करें
-    const matchesParent = (itemCat === targetParent);
-    const matchesSub = (itemSub === targetSub);
+        // 2. सर्च लॉजिक: अगर कोई सर्च टर्म है, तो उसे चेक करें
+        // अगर सर्च खाली है तो 'true' रहेगा, वरना टाइटल में सर्च करेगा
+        const matchesSearch = searchTerm === "" || 
+                              (item.title && item.title.toLowerCase().includes(searchTerm)) ||
+                              (item.category && item.category.toLowerCase().includes(searchTerm));
 
-    return matchesParent && matchesSub;
-});
+        // 3. दोनों कंडीशन (कैटेगरी + सर्च) का सही होना जरूरी है
+        return matchesCategory && matchesSearch;
+    });
     // DEBUGGING: यह आपको console में बताएगा कि मैच क्यों नहीं हो रहा
 console.log("Selected Parent:", currentSelectedParent, "| Selected Sub:", currentSelectedCategory);
 filteredResults.forEach(item => {
@@ -553,20 +543,32 @@ filteredResults.forEach(item => {
     });
 
     document.getElementById('category-search').addEventListener('input', (e) => {
-        const value = e.target.value.toLowerCase().trim();
-        document.querySelectorAll('.category-summary, .category-btn').forEach(element => {
-            const text = element.innerText.toLowerCase();
-            if(text.includes(value)) {
-                element.style.display = "flex";
-                const parentDetails = element.closest('details');
-                if(parentDetails) parentDetails.open = true;
-            } else {
-                if (element.classList.contains('category-btn')) element.style.display = "none";
-            }
-        });
-    });
+    const value = e.target.value.toLowerCase().trim();
+    
+    // साइडबार के सभी बटन्स और डिटेल्स को सेलेक्ट करें
+    const items = document.querySelectorAll('#category-tree details, #category-tree button');
 
-    const categoryIds = ['All', 'Tech', 'WebDev', 'DataScience', 'AIML', 'Cybersecurity', 'Network', 'Hacking', 'Academics', 'Year1', 'Year2', 'Books'];
+    items.forEach(element => {
+        const text = element.innerText.toLowerCase();
+        
+        if (text.includes(value)) {
+            element.style.display = ""; // दिखाएं
+            // अगर यह एक details टैग है, तो उसे ओपन कर दें ताकि रिजल्ट दिखे
+            if (element.tagName === 'DETAILS') {
+                element.open = true;
+            }
+        } else {
+            element.style.display = "none"; // छिपाएं
+            // अगर सर्च खाली है तो वापस नॉर्मल कर दें
+            if (value === "") {
+                element.style.display = "";
+                if (element.tagName === 'DETAILS') element.open = false;
+            }
+        }
+    });
+});
+
+    const categoryIds = ['All', 'Tech', 'WebDev', 'DataScience', 'AIML', 'Cybersecurity', 'Network', 'Hacking', , 'Year1', 'Year2', 'Books'];
     categoryIds.forEach(cat => {
         const btn = document.getElementById(`cat-${cat}`);
         if(btn) {
@@ -598,56 +600,78 @@ filteredResults.forEach(item => {
     document.getElementById('leaderboard-btn').addEventListener('click', () => {
         window.location.href = 'leaderboard.html';
     });
-    document.getElementById('logout-btn').addEventListener('click', () => {
-        signOut(auth).then(() => { window.location.replace("index.html"); });
+    const logoutButtons = document.querySelectorAll('[id^="logout-btn"]'); 
+
+logoutButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        if(confirm("Are you sure you want to sign out?")) {
+            signOut(auth).then(() => { 
+                window.location.replace("index.html"); 
+            }).catch((error) => {
+                console.error("Sign out error:", error);
+                alert("There is an issue signing you out!");
+            });
+        }
     });
+});
    
+// मान लीजिए आपका कैटेगरी ट्री का ID 'category-tree' है
 const categoryTree = document.getElementById('category-tree');
 
 onSnapshot(collection(db, "categories"), (snapshot) => {
+    // 1. सबसे पहले ट्री को पूरी तरह खाली करें ताकि डुप्लीकेट न बने
+    categoryTree.innerHTML = "";
+
+    // 2. 'All Resources' वाला बटन सबसे ऊपर जोड़ें (अगर आप चाहें)
+    categoryTree.innerHTML = `
+        <button id="cat-All" onclick="filterMobileCategory('All', 'All', [])" class="category-btn text-left w-full px-3 py-2 rounded-xl font-semibold transition bg-blue-50 text-blue-600 border border-blue-100 text-xs mb-4">
+            ✨ All Resources
+        </button>
+    `;
+
+    // 3. अब Firestore से आया डेटा रेंडर करें
     snapshot.forEach((doc) => {
         const catData = doc.data(); 
         const catId = `cat-${catData.name.replace(/\s+/g, '')}`;
-        
-        // 1. डायनामिक आइकन सेट करें (अगर डेटाबेस में आइकन नहीं है, तो 'fa-folder' डिफ़ॉल्ट रहेगा)
         const iconClass = catData.icon || "fa-folder"; 
         
-        if (!document.getElementById(catId)) {
-            const details = document.createElement('details');
-            details.className = "group mb-2";
-            details.id = catId;
-            
-            // 2. यहाँ ${iconClass} का उपयोग करें
-            details.innerHTML = `
-                <summary class="cursor-pointer p-2 rounded-lg hover:bg-slate-50 font-semibold text-slate-700 list-none flex justify-between items-center text-xs">
-                    <span class="flex items-center gap-2">
-                        <i class="fa-solid ${iconClass} text-blue-500 w-4"></i> ${catData.name}
-                    </span>
-                    <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
-                </summary>
-                <div class="pl-6 space-y-1 mt-1"></div>
-            `;
+        const details = document.createElement('details');
+        details.className = "group mb-2";
+        details.id = catId;
+        
+        details.innerHTML = `
+            <summary class="cursor-pointer p-2 rounded-lg hover:bg-slate-50 font-semibold text-slate-700 list-none flex justify-between items-center text-xs">
+                <span class="flex items-center gap-2">
+                    <i class="fa-solid ${iconClass} text-blue-500 w-4"></i> ${catData.name}
+                </span>
+                <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
+            </summary>
+            <div class="pl-6 space-y-1 mt-1"></div>
+        `;
 
-            const subContainer = details.querySelector('div');
-            if (catData.sub && Array.isArray(catData.sub)) {
-                catData.sub.forEach(sub => {
-                    const subBtn = document.createElement('button');
-                    subBtn.className = "block text-left w-full py-1 text-slate-500 hover:text-blue-600 text-xs font-medium pl-2";
-                    subBtn.innerText = sub;
+        const subContainer = details.querySelector('div');
+        if (catData.sub && Array.isArray(catData.sub)) {
+            catData.sub.forEach(sub => {
+                const subBtn = document.createElement('button');
+                subBtn.className = "block text-left w-full py-1 text-slate-500 hover:text-blue-600 text-xs font-medium pl-2";
+                subBtn.innerText = sub;
+                
+                subBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    currentSelectedCategory = sub;
+                    currentSelectedParent = catData.name;
+                    document.getElementById('current-category-title').innerText = `${catData.name} - ${sub}`;
+                    renderGridInterface();
                     
-                    subBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        currentSelectedCategory = sub;
-                        currentSelectedParent = catData.name;
-                        document.getElementById('current-category-title').innerText = `${catData.name} - ${sub}`;
-                        renderGridInterface();
+                    // मोबाइल पर क्लिक के बाद साइडबार बंद करने के लिए
+                    if(window.innerWidth < 768) {
                         document.getElementById('sidebar').classList.add('-translate-x-full');
-                    };
-                    subContainer.appendChild(subBtn);
-                });
-            }
-            categoryTree.appendChild(details);
+                    }
+                };
+                subContainer.appendChild(subBtn);
+            });
         }
+        categoryTree.appendChild(details);
     });
 });
 window.reportPost = async (postId, authorName) => {
@@ -678,6 +702,80 @@ window.deleteMyPost = async (postId) => {
     } catch(e) {
         alert("Error: " + e.message);
     }
+};
+
+// यह फंक्शन मोबाइल बार में बटन जनरेट करेगा
+const mobileBar = document.getElementById('mobile-category-bar');
+
+onSnapshot(collection(db, "categories"), (snapshot) => {
+    const mobileBar = document.getElementById('mobile-category-bar');
+    
+    // 'All' बटन - इसे रिसेट करने के लिए
+    mobileBar.innerHTML = `<button onclick="filterMobileCategory('All', 'All', [])" class="whitespace-nowrap px-4 py-1.5 rounded-full bg-blue-600 text-white text-xs font-bold shadow-sm">All</button>`;
+    
+    snapshot.forEach((doc) => {
+        const cat = doc.data();
+        
+        // बटन बनाएं
+        const btn = document.createElement('button');
+        btn.className = "whitespace-nowrap px-4 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold";
+        btn.innerText = cat.name;
+        
+        // सेफ तरीके से सब-कैटेगरी पास करें
+        const subCategories = cat.sub || [];
+        
+        btn.onclick = () => {
+            filterMobileCategory(cat.name, 'All', subCategories);
+        };
+        
+        mobileBar.appendChild(btn);
+    });
+});
+// फिल्टर फंक्शन
+window.filterMobileCategory = (parentName, subName = 'All', subArray = []) => {
+    // 1. Logic Update
+    currentSelectedParent = (parentName === 'All') ? null : parentName;
+    currentSelectedCategory = subName;
+
+    // 2. UI Update (Title)
+    document.getElementById('current-category-title').innerText = 
+        (parentName === 'All') ? 'All Resources' : parentName;
+
+    // 3. नेविगेशन मोड स्विच (अगर सब-कैटेगरी है तो उसे रेंडर करें)
+    const bar = document.getElementById('mobile-category-bar');
+    
+    if (parentName !== 'All' && subArray && subArray.length > 0 && subName === 'All') {
+        bar.innerHTML = `<button onclick="window.location.reload()" class="text-blue-600 font-bold px-3 text-sm">←</button>`;
+        
+        // सब-कैटेगरी बटन रेंडर करें
+        subArray.forEach(sub => {
+            const isSelected = sub === currentSelectedCategory;
+            bar.innerHTML += `
+                <button onclick="handleSubClick(this, '${parentName}', '${sub}')" 
+                        class="whitespace-nowrap px-3 py-1 rounded-full text-xs font-bold transition-all ${isSelected ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-700'}">
+                    ${sub}
+                </button>`;
+        });
+    }
+
+    renderGridInterface();
+};
+
+// नया छोटा फंक्शन: सिर्फ क्लिक किए गए बटन का कलर बदलने के लिए
+window.handleSubClick = (btn, parent, sub) => {
+    // सारे सब-बटन्स का रंग हटाएँ
+    document.querySelectorAll('#mobile-category-bar button').forEach(b => {
+        b.classList.remove('bg-blue-600', 'text-white', 'shadow-sm');
+        b.classList.add('bg-slate-100', 'text-slate-700');
+    });
+    
+    // क्लिक किए गए बटन को एक्टिव करें
+    btn.classList.remove('bg-slate-100', 'text-slate-700');
+    btn.classList.add('bg-blue-600', 'text-white', 'shadow-sm');
+    
+    // फिल्टर लागू करें
+    currentSelectedCategory = sub;
+    renderGridInterface();
 };
 </script>
 </body>
