@@ -435,7 +435,7 @@ async function initializeMasterCache() {
             localMasterArray.push({ id: doc.id, ...doc.data() });
         });
         
-        console.log("Master Cache Loaded with Order:", localMasterArray);
+      //  console.log("Master Cache Loaded with Order:", localMasterArray);
     } catch(e) { 
         console.error("Cache aborted: ", e); 
     }
@@ -478,11 +478,7 @@ async function initializeMasterCache() {
         // 3. दोनों कंडीशन (कैटेगरी + सर्च) का सही होना जरूरी है
         return matchesCategory && matchesSearch;
     });
-    // DEBUGGING: यह आपको console में बताएगा कि मैच क्यों नहीं हो रहा
-console.log("Selected Parent:", currentSelectedParent, "| Selected Sub:", currentSelectedCategory);
-filteredResults.forEach(item => {
-    console.log("Checking Item:", item.title, "| Cat:", item.category, "| Sub:", item.subCategory);
-});
+  
     // ... आगे का रेंडरिंग कोड सेम रहेगा ...
 
         if (filteredResults.length === 0) {
