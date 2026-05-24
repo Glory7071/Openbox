@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
     <title>Box - Premium Learning Hub</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -147,6 +150,9 @@
                 <button id="guest-login-btn" class="w-full flex items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-slate-700 font-bold py-2.5 px-4 rounded-xl text-xs transition-all duration-150 active:scale-[0.98] cursor-pointer shadow-sm">
                     <span>⚡ Open Guest Sandbox</span>
                 </button>
+                <button id="install-btn" class="hidden w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs uppercase shadow-lg transition-all active:scale-95 mt-4">
+    <i class="fa-solid fa-download mr-2"></i> Install EduBox App
+</button>
             </div>
         </main>
 
@@ -210,7 +216,7 @@
             onAuthStateChanged,
             signOut 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc,increment,updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC-wugm5grs9NRv94xnrtODyF43JslKKnA",
@@ -244,6 +250,30 @@
         const tabLogin = document.getElementById('tab-login');
         const tabSignup = document.getElementById('tab-signup');
 
+        async function checkMaintenance() {
+    try {
+        const docRef = doc(db, "system", "settings");
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists() && docSnap.data().maintenanceMode === true) {
+            // पूरे बॉडी को क्लियर करके सिर्फ मेंटेनेंस मैसेज दिखाना
+            document.body.innerHTML = `
+                <div class="min-h-screen flex flex-col items-center justify-center text-center p-6 bg-slate-50">
+                    <div class="animate-bounce text-6xl mb-4">🛠️</div>
+                    <h1 class="text-3xl font-black text-slate-800">Under Maintenance</h1>
+                    <p class="text-slate-500 mt-2">EduBox is currently being upgraded. Please check back soon!</p>
+                </div>
+            `;
+            // मेंटेनेंस मोड पर है तो आगे का कोई भी JS कोड न चले
+            throw new Error("Maintenance Mode Active"); 
+        }
+    } catch (e) {
+        console.log("Maintenance check skipped or error:", e.message);
+    }
+}
+// इसे सबसे पहले कॉल करें
+checkMaintenance();
+
         // Global Session Listener
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -256,6 +286,20 @@
                 window.location.href = "dashboard.html";
             }
         });
+
+        // TRACKER
+    async function trackVisit() {
+        if (!sessionStorage.getItem('visited')) {
+            const visitRef = doc(db, "analytics", "traffic");
+            try {
+                await setDoc(visitRef, {
+                    total_visits: increment(1),
+                    last_seen: new Date().toISOString()
+                }, { merge: true });
+                sessionStorage.setItem('visited', 'true');
+            } catch (e) { console.error(e); }
+        }
+    }
 
         // Toggle to Login Mode
         tabLogin.addEventListener('click', () => {
@@ -287,20 +331,7 @@
             submitBtnText.innerText = "Create Verified Account";
         });
 
-        async function checkMaintenance() {
-    const docRef = doc(db, "system", "settings");
-    const docSnap = await getDoc(docRef);
-    
-    if (docSnap.exists() && docSnap.data().maintenanceMode === true) {
-        document.body.innerHTML = `
-            <div class="min-h-screen flex flex-col items-center justify-center text-center p-6">
-                <h1 class="text-4xl font-black text-rose-600">🚧 UNDER MAINTENANCE</h1>
-                <p class="text-slate-500 mt-2">System update in progress. Please return shortly.</p>
-            </div>
-        `;
-    }
-}
-checkMaintenance(); 
+        
 
         // Location Finder
         function captureUserLocation() {
@@ -400,22 +431,32 @@ checkMaintenance();
         }
 
         // यह कोड अपनी मुख्य JS में डालें
-async function trackVisit() {
-    // सिर्फ एक बार चेक करने के लिए कि सेशन में विजिट हो चुकी है या नहीं
-    if (!sessionStorage.getItem('visited')) {
-        const visitRef = doc(db, "analytics", "traffic");
-        try {
-            await updateDoc(visitRef, {
-                total_visits: increment(1),
-                last_seen: new Date()
-            });
-            sessionStorage.setItem('visited', 'true'); // विजिट दर्ज कर ली गई
-        } catch (e) {
-            console.log("Analytics error: ", e);
-        }
+
+// Install Logic को यहाँ module के अंदर रखें
+let deferredPrompt;
+const installBtn = document.getElementById('install-btn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // ब्राउज़र को डिफ़ॉल्ट प्रॉम्प्ट दिखाने से रोकें
+    e.preventDefault();
+    // इवेंट को बाद के लिए सेव करें
+    deferredPrompt = e;
+    // अब बटन दिखाएं
+    if (installBtn) {
+        installBtn.classList.remove('hidden');
+        console.log("Install prompt is ready!");
     }
-}
-trackVisit();
+});
+
+installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log('User response:', outcome);
+        deferredPrompt = null;
+        installBtn.classList.add('hidden');
+    }
+});
     </script>
 </body>
 </html>
