@@ -381,7 +381,7 @@ checkMaintenance();
                     
                     if (!result.user.emailVerified) {
                         submitBtnText.innerText = originalBtnText;
-                        alert("लॉगिन ब्लॉक: कृपया पहले अपने ईमेल इनबॉक्स में जाएँ और वेरिफिकेशन लिंक पर क्लिक करें!");
+                        alert("Please check your email inbox and click the verification link to proceed!");
                         await signOut(auth); // जब तक क्लिक न हो, लॉगआउट रखें
                         return;
                     }
@@ -404,7 +404,7 @@ checkMaintenance();
                     await initializeUserDocument(user.uid, fullName, email, phoneNo, null);
 
                     submitBtnText.innerText = originalBtnText;
-                    alert("अकाउंट सफलतापूर्वक बन गया है! आपके ईमेल पर एक वेरिफिकेशन लिंक भेजा गया है। इनबॉक्स (या स्पैम फोल्डर) चेक करें और लिंक पर क्लिक करने के बाद ही लॉगिन करें।");
+                    alert("Account created successfully! A verification link has been sent to your email. Please check your inbox (or spam folder) and verify your email before logging in.");
                     
                     // यूज़र को तुरंत डैशबोर्ड पर जाने से रोकने के लिए लॉगआउट करके पेज रिफ्रेश करें
                     await signOut(auth);
