@@ -142,6 +142,13 @@
                     <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:opacity-95 text-white font-bold py-3 rounded-xl text-xs transition duration-150 active:scale-[0.98] cursor-pointer shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 tracking-wide uppercase mt-2">
                         <span id="submit-btn-text">Sign In Securely</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
                     </button>
+                    <div class="mt-4 text-center">
+    <button type="button" 
+            onclick="document.getElementById('register-guide-modal').classList.remove('hidden')" 
+            class="text-xs font-bold text-blue-600 hover:underline cursor-pointer">
+        How to register? (Step-by-step guide)
+    </button>
+</div>
                     
                 </form>
                  
@@ -202,6 +209,24 @@
             <a href="https://www.linkedin.com/in/gaurav-yadav-32388b332" class="text-slate-400 hover:text-blue-700 transition text-xl"><i class="fa-brands fa-linkedin"></i></a>
             <a href="#" class="text-slate-400 hover:text-rose-600 transition text-xl"><i class="fa-solid fa-envelope"></i></a>
         </div>
+    </div>
+</div>
+    <div id="register-guide-modal" class="hidden fixed inset-0 z-[101] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl animate-in fade-in zoom-in duration-300">
+        <h2 class="text-xl font-black text-slate-900 mb-4">Getting Started with EduBox 🚀</h2>
+        
+        <div class="space-y-4 text-xs text-slate-600">
+            <p><strong>Step 1: Get the App</strong><br>EduBox को बेहतर अनुभव के लिए अपने डिवाइस पर 'Install' करें।</p>
+            <p><strong>Step 2: Create Your Account</strong><br>अपनी डिटेल्स भरें। रजिस्ट्रेशन के बाद एक वेरिफिकेशन लिंक आपके ईमेल पर आएगा।</p>
+            <p><strong>Step 3: Verify & Access</strong><br>अपने ईमेल (या स्पैम फोल्डर) में जाकर लिंक पर क्लिक करें। वेरिफिकेशन के बाद ही आप 'Sign In' कर पाएंगे।</p>
+            <p><strong>Step 4: Start Learning</strong><br>लॉगिन करें और पॉइंट्स कमाना शुरू करें!</p>
+            <p class="text-[10px] bg-amber-50 p-2 rounded-lg text-amber-700 italic">नोट: सिक्योरिटी के लिए ईमेल वेरिफिकेशन अनिवार्य है।</p>
+        </div>
+
+        <button onclick="document.getElementById('register-guide-modal').classList.add('hidden')" 
+                class="mt-6 w-full py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition">
+            Understood
+        </button>
     </div>
 </div>
     <!-- Footer Component -->
