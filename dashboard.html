@@ -15,6 +15,7 @@
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: #e2e8f0; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
+        
     </style>
 </head>
 <body class="text-slate-800 min-h-screen flex flex-col md:flex-row">
@@ -119,14 +120,19 @@
             <section id="content-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div class="text-slate-400 animate-pulse col-span-full text-center py-12 text-xs font-medium">Fetching curated network data...</div>
             </section>
-            <div id="inline-pdf-viewer" class="hidden w-full bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm h-[700px] flex flex-col">
-    <div class="flex justify-between items-center p-3 border-b bg-slate-50">
-        <h3 class="font-bold text-xs text-slate-700">📚 Document Reader</h3>
-        <button onclick="closeInlinePDF()" class="text-slate-500 hover:text-red-500 text-xs font-bold">
-            <i class="fa-solid fa-xmark"></i> Close Reader
-        </button>
+          <div id="inline-pdf-viewer" class="hidden w-full bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm h-[700px] flex flex-col">
+   <div class="flex justify-between items-center px-4 py-3 border-b bg-slate-50">
+    <h3 class="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-2">
+        <i class="fa-solid fa-file-pdf text-blue-600"></i> Pdf Reader
+    </h3>
+    <div class="flex gap-2">
+        <button onclick="togglePdfDarkMode()" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition active:scale-95">Dark</button>
+        <button onclick="toggleFullScreen()" class="bg-purple-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition active:scale-95">Full</button>
+        <a id="download-pdf-btn" href="#" target="_blank" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition active:scale-95">Download</a>
+        <button onclick="closeInlinePDF()" class="bg-rose-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition active:scale-95">Close</button>
     </div>
-    <iframe id="inline-pdf-frame" src="" class="w-full flex-1 border-none"></iframe>
+</div>
+    <iframe id="inline-pdf-frame" src="" class="w-full flex-grow border-none"></iframe>
 </div>
 
             <div id="load-more-container" class="text-center pt-4 hidden">
@@ -134,7 +140,7 @@
                     Load More Resources ↓
                 </button>
             </div>
-             <button onclick="document.getElementById('help-modal').classList.remove('hidden')" 
+            <button onclick="document.getElementById('help-modal').classList.remove('hidden')" 
         class="fixed bottom-6 right-6 z-[99] bg-blue-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 transition-all active:scale-95 animate-bounce">
     <i class="fa-solid fa-question text-xl"></i>
 </button>
@@ -171,7 +177,6 @@
         </button>
     </div>
 </div>
-            
             <footer class="w-full bg-white border-t border-slate-200 py-8 px-4 mt-8">
     <div class="max-w-4xl mx-auto text-center space-y-4">
         <div class="text-[11px] text-slate-500 leading-relaxed max-w-2xl mx-auto">
@@ -240,10 +245,9 @@
             </section>
         </aside>
     </div>
-   
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, query, orderBy, where, onSnapshot,deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -259,6 +263,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+   
 
     let currentActiveUID = null;
     let localMasterArray = []; 
@@ -482,7 +487,7 @@ async function initializeMasterCache() {
             localMasterArray.push({ id: doc.id, ...doc.data() });
         });
         
-      //  console.log("Master Cache Loaded with Order:", localMasterArray);
+        //console.log("Master Cache Loaded with Order:", localMasterArray);
     } catch(e) { 
         console.error("Cache aborted: ", e); 
     }
@@ -529,7 +534,18 @@ async function initializeMasterCache() {
     // ... आगे का रेंडरिंग कोड सेम रहेगा ...
 
         if (filteredResults.length === 0) {
-        grid.innerHTML = `<div class="text-slate-400 text-center col-span-full py-12 text-xs font-semibold">No resource nodes match current parameters.</div>`;
+        grid.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center py-20 animate-in fade-in zoom-in">
+    <div class="bg-slate-100 p-6 rounded-full mb-4">
+        <i class="fa-solid fa-box-open text-5xl text-slate-400"></i>
+    </div>
+    
+    <p class="text-slate-500 font-bold text-sm">Oops! No resources here yet.</p>
+    <p class="text-slate-400 text-xs mt-1">Try selecting a different category or clear your filters.</p>
+    
+    <button onclick="window.location.reload()" class="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl text-xs font-bold transition active:scale-95">
+        Clear Filters
+    </button>
+</div>`;
         loadMoreWrapper.classList.add('hidden');
         return;
     }
@@ -555,7 +571,7 @@ async function initializeMasterCache() {
             card.innerHTML = `
                 <div>
                     <div class="relative aspect-video w-full overflow-hidden bg-slate-100">
-                        <img src="${thumbUrl}" alt="Cover" class="w-full h-full object-cover opacity-95 group-hover:scale-105 transition duration-300">
+                        <img src="${thumbUrl}" loading="lazy" alt="Cover" class="w-full h-full object-cover opacity-95 group-hover:scale-105 transition duration-300">
                         <span class="absolute top-2.5 left-2.5 bg-white text-blue-600 font-extrabold text-[10px] px-2 py-0.5 rounded-lg border border-slate-100 shadow-sm">+${data.points_reward} XP</span>
                         <span class="absolute bottom-2.5 left-2.5 bg-slate-900/80 text-[9px] font-bold text-white px-2 py-0.5 rounded border border-slate-800/40">${isPdf ? "📄 PDF Document" : "🎥 Video Stream"}</span>
                     </div>
@@ -577,7 +593,8 @@ async function initializeMasterCache() {
         });
 
         document.querySelectorAll('.action-trigger-btn').forEach(btn => {
-           btn.addEventListener('click', (e) => {
+           // ... रेंडर फंक्शन के अंदर ...
+btn.addEventListener('click', (e) => {
     const id = e.target.getAttribute('data-id');
     const type = e.target.getAttribute('data-type');
     const url = e.target.getAttribute('data-url');
@@ -595,16 +612,28 @@ async function initializeMasterCache() {
     }
 
     // LOAD MORE SYSTEM ACTIVATION
-    document.getElementById('btn-load-more').addEventListener('click', () => {
-        itemsToDisplayCount += 12; 
-        renderGridInterface();
-    });
+    // Load More बटन का लॉजिक
+document.getElementById('btn-load-more').addEventListener('click', () => {
+    itemsToDisplayCount += 12;
+    
+    // चेक करें कि स्क्रीन पर क्या टाइटल दिख रहा है
+    const currentTitle = document.getElementById('current-category-title').innerText;
+    
+    if (currentTitle === "🔔 My Feed") {
+        renderMyFeed(); // My Feed को रेंडर करें
+    } else {
+        renderGridInterface(); // वरना नॉर्मल कैटेगरी/ऑल रिसोर्सेज रेंडर करें
+    }
+});
 
-    document.getElementById('dashboard-search-input').addEventListener('input', () => {
-        itemsToDisplayCount = 12; 
-        renderGridInterface();
-    });
-
+// सर्च इनपुट का लॉजिक
+document.getElementById('dashboard-search-input').addEventListener('input', () => {
+    itemsToDisplayCount = 12; // सर्च करते ही शुरू से 12 दिखाएं
+    
+    // अगर यूजर सर्च कर रहा है, तो वो शायद 'All Resources' में ही है
+    // तो उसे रेंडर कर दें
+    renderGridInterface(); 
+});
     document.getElementById('category-search').addEventListener('input', (e) => {
     const value = e.target.value.toLowerCase().trim();
     
@@ -681,62 +710,83 @@ logoutButtons.forEach(btn => {
 // मान लीजिए आपका कैटेगरी ट्री का ID 'category-tree' है
 const categoryTree = document.getElementById('category-tree');
 
+// अपनी पुरानी snapshot वाली जगह पर ये वाला कोड लगाएं
 onSnapshot(collection(db, "categories"), (snapshot) => {
-    // 1. सबसे पहले ट्री को पूरी तरह खाली करें ताकि डुप्लीकेट न बने
     categoryTree.innerHTML = "";
 
-    // 2. 'All Resources' वाला बटन सबसे ऊपर जोड़ें (अगर आप चाहें)
+    // 1. बटन्स जोड़ें
     categoryTree.innerHTML = `
-        <button id="cat-All" onclick="filterMobileCategory('All', 'All', [])" class="category-btn text-left w-full px-3 py-2 rounded-xl font-semibold transition bg-blue-50 text-blue-600 border border-blue-100 text-xs mb-4">
+        <button id="cat-All" onclick="filterMobileCategory('All', 'All', [])" class="category-btn text-left w-full px-3 py-2 rounded-xl font-semibold transition bg-blue-50 text-blue-600 border border-blue-100 text-xs mb-2">
             ✨ All Resources
+        </button>
+        <button onclick="renderMyFeed()" class="category-btn text-left w-full px-3 py-2 rounded-xl font-semibold transition bg-orange-50 text-orange-600 border border-orange-100 text-xs mb-4">
+            🔔 My Feed
         </button>
     `;
 
-    // 3. अब Firestore से आया डेटा रेंडर करें
+    // 2. कैटेगरीज़ बनाएं
     snapshot.forEach((doc) => {
         const catData = doc.data(); 
         const catId = `cat-${catData.name.replace(/\s+/g, '')}`;
-        const iconClass = catData.icon || "fa-folder"; 
         
-        const details = document.createElement('details');
-        details.className = "group mb-2";
-        details.id = catId;
+        const div = document.createElement('div');
+        div.className = "mb-2 border-b border-slate-100 pb-1";
         
-        details.innerHTML = `
-            <summary class="cursor-pointer p-2 rounded-lg hover:bg-slate-50 font-semibold text-slate-700 list-none flex justify-between items-center text-xs">
+        div.innerHTML = `
+            <div id="sum-${catId}" class="cursor-pointer p-2 rounded-lg hover:bg-slate-50 font-semibold text-slate-700 flex justify-between items-center text-xs">
                 <span class="flex items-center gap-2">
-                    <i class="fa-solid ${iconClass} text-blue-500 w-4"></i> ${catData.name}
+                    <i class="fa-solid ${catData.icon || 'fa-folder'} text-blue-500 w-4"></i> ${catData.name}
                 </span>
-                <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
-            </summary>
-            <div class="pl-6 space-y-1 mt-1"></div>
+                <div class="flex items-center gap-2">
+                    <button onclick="event.stopPropagation(); toggleSubscription('${catData.name}')" class="text-slate-400 hover:text-orange-500 p-1">
+                        <i class="fa-solid fa-bell text-[10px]"></i>
+                    </button>
+                    <i id="icon-${catId}" class="fa-solid fa-chevron-down text-[10px] transition"></i>
+                </div>
+            </div>
+            <div id="sub-${catId}" class="pl-8 space-y-1 mt-1 hidden"></div>
         `;
 
-        const subContainer = details.querySelector('div');
+        // क्लिक इवेंट जो सब-कैटेगरी दिखाएगा/छिपाएगा
+        div.querySelector(`#sum-${catId}`).onclick = () => {
+            const subDiv = document.getElementById(`sub-${catId}`);
+            const icon = document.getElementById(`icon-${catId}`);
+            subDiv.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        };
+
+        const subContainer = div.querySelector(`#sub-${catId}`);
         if (catData.sub && Array.isArray(catData.sub)) {
             catData.sub.forEach(sub => {
                 const subBtn = document.createElement('button');
-                subBtn.className = "block text-left w-full py-1 text-slate-500 hover:text-blue-600 text-xs font-medium pl-2";
+                subBtn.className = "block text-left w-full py-1 text-slate-500 hover:text-blue-600 text-xs font-medium";
                 subBtn.innerText = sub;
-                
                 subBtn.onclick = (e) => {
                     e.stopPropagation();
                     currentSelectedCategory = sub;
                     currentSelectedParent = catData.name;
                     document.getElementById('current-category-title').innerText = `${catData.name} - ${sub}`;
                     renderGridInterface();
-                    
-                    // मोबाइल पर क्लिक के बाद साइडबार बंद करने के लिए
-                    if(window.innerWidth < 768) {
-                        document.getElementById('sidebar').classList.add('-translate-x-full');
-                    }
+                    if(window.innerWidth < 768) document.getElementById('sidebar').classList.add('-translate-x-full');
                 };
                 subContainer.appendChild(subBtn);
             });
         }
-        categoryTree.appendChild(details);
+        categoryTree.appendChild(div);
     });
 });
+window.toggleSubscription = (catName) => {
+    if (mySubscriptions.includes(catName)) {
+        mySubscriptions = mySubscriptions.filter(c => c !== catName);
+        alert(catName + " अब आपकी फीड से हटा दी गई है।");
+    } else {
+        mySubscriptions.push(catName);
+        alert(catName + " आपकी फीड में जोड़ दी गई है! 🔔");
+    }
+    localStorage.setItem('mySubscriptions', JSON.stringify(mySubscriptions));
+    
+    // UI अपडेट करने के लिए अगर जरूरत हो तो पेज रिलोड या आइकन का कलर बदलें
+};
 window.reportPost = async (postId, authorName) => {
     if(!confirm("क्या आप इस पोस्ट को रिपोर्ट करना चाहते हैं?")) return;
     
@@ -774,25 +824,33 @@ onSnapshot(collection(db, "categories"), (snapshot) => {
     const mobileBar = document.getElementById('mobile-category-bar');
     
     // 'All' बटन - इसे रिसेट करने के लिए
-    mobileBar.innerHTML = `<button onclick="filterMobileCategory('All', 'All', [])" class="whitespace-nowrap px-4 py-1.5 rounded-full bg-blue-600 text-white text-xs font-bold shadow-sm">All</button>`;
+    mobileBar.innerHTML = `<button onclick="filterMobileCategory('All', 'All', [])" class="whitespace-nowrap px-4 py-1.5 rounded-full bg-blue-600 text-white text-xs font-bold shadow-sm">All</button>
+    <button onclick="renderMyFeed()" class="whitespace-nowrap px-4 py-1.5 rounded-full bg-orange-500 text-white text-xs font-bold">🔔 My Feed</button>
+    `;
     
     snapshot.forEach((doc) => {
-        const cat = doc.data();
-        
-        // बटन बनाएं
-        const btn = document.createElement('button');
-        btn.className = "whitespace-nowrap px-4 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold";
-        btn.innerText = cat.name;
-        
-        // सेफ तरीके से सब-कैटेगरी पास करें
-        const subCategories = cat.sub || [];
-        
-        btn.onclick = () => {
-            filterMobileCategory(cat.name, 'All', subCategories);
-        };
-        
-        mobileBar.appendChild(btn);
-    });
+    const cat = doc.data();
+    
+    // बटन के लिए कंटेनर
+    const btnWrapper = document.createElement('div');
+    btnWrapper.className = "flex items-center gap-1 whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold";
+    
+    // सब-कैटेगरी डेटा
+    const subCategories = cat.sub || [];
+    
+    // बटन का HTML (कैटेगरी नाम + बेल आइकन)
+    btnWrapper.innerHTML = `
+        <span class="cursor-pointer" onclick="filterMobileCategory('${cat.name}', 'All', [${subCategories.map(s => `'${s}'`).join(',')}])">
+            ${cat.name}
+        </span>
+        <button onclick="event.stopPropagation(); toggleSubscription('${cat.name}')" 
+                class="ml-1 text-slate-400 hover:text-orange-500 transition-all">
+            <i class="fa-solid fa-bell text-[10px]"></i>
+        </button>
+    `;
+    
+    mobileBar.appendChild(btnWrapper);
+});
 });
 // फिल्टर फंक्शन
 window.filterMobileCategory = (parentName, subName = 'All', subArray = []) => {
@@ -840,7 +898,7 @@ window.handleSubClick = (btn, parent, sub) => {
     currentSelectedCategory = sub;
     renderGridInterface();
 };
-    // PDF Modal खोलने के लिए
+// PDF Modal खोलने के लिए
 window.openPDFInline = (url) => {
     const embedUrl = url.replace('/view', '/preview');
     
@@ -848,20 +906,180 @@ window.openPDFInline = (url) => {
     document.getElementById('content-grid').classList.add('hidden');
     document.getElementById('load-more-container').classList.add('hidden');
     
-    // 2. Viewer दिखाएं और URL सेट करें
+    // 2. Viewer दिखाएं
     const viewer = document.getElementById('inline-pdf-viewer');
+    
+    // 3. Iframe का सोर्स सेट करें
     document.getElementById('inline-pdf-frame').src = embedUrl;
+    
+    // 4. Download बटन का लिंक सेट करें (यहाँ नया काम हो रहा है)
+    const downloadBtn = document.getElementById('download-pdf-btn');
+    if (downloadBtn) {
+        downloadBtn.href = url; // यह ओरिजिनल लिंक सेट करेगा ताकि फाइल डाउनलोड हो सके
+    }
+    
     viewer.classList.remove('hidden');
 };
 
 window.closeInlinePDF = () => {
     // 1. Viewer छिपाएं
-    document.getElementById('inline-pdf-viewer').classList.add('hidden');
+    const viewer = document.getElementById('inline-pdf-viewer');
+    viewer.classList.add('hidden');
     document.getElementById('inline-pdf-frame').src = "";
     
     // 2. वापस Grid दिखाएं
     document.getElementById('content-grid').classList.remove('hidden');
     document.getElementById('load-more-container').classList.remove('hidden');
+};
+// डार्क मोड टॉगल
+window.togglePdfDarkMode = () => {
+    const frame = document.getElementById('inline-pdf-frame');
+    const btn = document.querySelector('button[onclick="togglePdfDarkMode()"]');
+    
+    if (frame.style.filter === 'invert(1) hue-rotate(180deg)') {
+        frame.style.filter = 'none';
+        btn.innerHTML = '<i class="fa-solid fa-moon"></i> Dark';
+    } else {
+        frame.style.filter = 'invert(1) hue-rotate(180deg)';
+        btn.innerHTML = '<i class="fa-solid fa-sun"></i> Light';
+    }
+};
+
+// फुल स्क्रीन टॉगल
+window.toggleFullScreen = () => {
+    const viewer = document.getElementById('inline-pdf-viewer');
+    const btn = document.querySelector('button[onclick="toggleFullScreen()"]');
+    
+    viewer.classList.toggle('fixed');
+    viewer.classList.toggle('inset-0');
+    viewer.classList.toggle('z-[200]');
+    viewer.classList.toggle('rounded-none');
+    viewer.classList.toggle('h-[700px]');
+    viewer.classList.toggle('h-screen');
+    
+    if (viewer.classList.contains('fixed')) {
+        btn.innerHTML = '<i class="fa-solid fa-compress"></i> Normal';
+    } else {
+        btn.innerHTML = '<i class="fa-solid fa-expand"></i> Full';
+    }
+};
+
+// क्लोज फंक्शन (जो सब कुछ रीसेट करेगा)
+window.closeInlinePDF = () => {
+    const viewer = document.getElementById('inline-pdf-viewer');
+    const frame = document.getElementById('inline-pdf-frame');
+    
+    // 1. अगर फुल-स्क्रीन मोड में है, तो उसे हटाएं
+    if (viewer.classList.contains('fixed')) {
+        viewer.classList.remove('fixed', 'inset-0', 'z-[200]', 'rounded-none', 'h-screen');
+        viewer.classList.add('h-[700px]');
+        document.querySelector('button[onclick="toggleFullScreen()"]').innerHTML = '<i class="fa-solid fa-expand"></i> Full';
+    }
+    
+    // 2. अगर डार्क मोड में है, तो उसे नॉर्मल करें
+    if (frame.style.filter !== 'none') {
+        frame.style.filter = 'none';
+        document.querySelector('button[onclick="togglePdfDarkMode()"]').innerHTML = '<i class="fa-solid fa-moon"></i> Dark';
+    }
+    
+    // 3. व्यूअर छिपाएं और Grid वापस लाएं
+    viewer.classList.add('hidden');
+    frame.src = "";
+    document.getElementById('content-grid').classList.remove('hidden');
+    document.getElementById('load-more-container').classList.remove('hidden');
+};
+
+// यूजर की सब्सक्राइब की हुई कैटेगरी (इसे कहीं सेव रखें, जैसे localStorage या Firebase)
+let mySubscriptions = JSON.parse(localStorage.getItem('mySubscriptions')) || [];
+
+// ग्लोबल वेरिएबल का इस्तेमाल करें जो पहले से है: itemsToDisplayCount
+window.renderMyFeed = () => {
+    document.getElementById('current-category-title').innerText = "🔔 My Feed";
+    
+    // सुरक्षित फिल्टरिंग
+    const filteredResults = localMasterArray.filter(item => {
+        const itemCat = (item.category || "").trim().toLowerCase();
+        return mySubscriptions.some(sub => sub.trim().toLowerCase() === itemCat);
+    });
+
+    if (filteredResults.length === 0) {
+        document.getElementById('content-grid').innerHTML = `
+            <div class="col-span-full py-20 text-center text-slate-400 font-bold">
+                कोई फीड नहीं है! कैटेगरी फॉलो करना शुरू करें।
+            </div>
+        `;
+        document.getElementById('load-more-container').classList.add('hidden');
+    } else {
+        // अब यहाँ पगाइनेशन का Slice लॉजिक डालें
+        const paginatedSlice = filteredResults.slice(0, itemsToDisplayCount);
+        renderGridWithData(paginatedSlice); // सिर्फ 12 ही पास होंगे
+
+        // Load More बटन का लॉजिक
+        const loadMoreBtn = document.getElementById('load-more-container');
+        if (filteredResults.length > itemsToDisplayCount) {
+            loadMoreBtn.classList.remove('hidden');
+        } else {
+            loadMoreBtn.classList.add('hidden');
+        }
+    }
+};
+
+// अलग से रेंडर फंक्शन जो डेटा ले सके
+window.renderGridWithData = (dataArray) => {
+    const grid = document.getElementById('content-grid');
+    grid.innerHTML = "";
+    document.getElementById('load-more-container').classList.add('hidden');
+
+    const escapeHTML = (str) => str ? str.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;") : "";
+
+    dataArray.forEach((data) => {
+        // यहाँ हमने लॉजिक को बिल्कुल आपके मुख्य रेंडर फंक्शन जैसा कर दिया है
+        const isPdf = data.resource_type === 'pdf' || !data.yt_url_id;
+        
+        // थंबनेल का वही लॉजिक जो आपके 'All Resources' में काम कर रहा है
+        const thumbUrl = isPdf 
+    ? "https://cdn-icons-png.flaticon.com/512/8243/8243060.png" 
+    : `https://img.youtube.com/vi/${data.yt_url_id}/mqdefault.jpg`;
+        const card = document.createElement('div');
+        card.className = "bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-blue-500 transition duration-200 flex flex-col justify-between group shadow-sm";
+        
+        card.innerHTML = `
+            <div>
+                <div class="relative aspect-video w-full overflow-hidden bg-slate-100">
+                    <img src="${thumbUrl}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=600'" alt="Cover" class="w-full h-full object-cover opacity-95 group-hover:scale-105 transition duration-300">
+                    <span class="absolute top-2.5 left-2.5 bg-white text-blue-600 font-extrabold text-[10px] px-2 py-0.5 rounded-lg border border-slate-100 shadow-sm">+${data.points_reward || 0} XP</span>
+                    <span class="absolute bottom-2.5 left-2.5 bg-slate-900/80 text-[9px] font-bold text-white px-2 py-0.5 rounded border border-slate-800/40">${isPdf ? "📄 PDF Document" : "🎥 Video Stream"}</span>
+                </div>
+                <div class="p-4 space-y-1.5">
+                    <span class="text-[9px] uppercase font-bold tracking-wider text-blue-600 px-2 py-0.5 rounded bg-blue-50 border border-blue-100">${escapeHTML(data.category)}</span>
+                    <h3 class="font-extrabold text-slate-800 text-sm leading-snug line-clamp-2 pt-1">${escapeHTML(data.title)}</h3>
+                </div>
+            </div>
+            <div class="p-4 pt-0">
+                <button class="action-trigger-btn w-full bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-bold py-2 px-4 rounded-xl text-xs transition duration-150 active:scale-95 cursor-pointer text-center block" 
+                        data-id="${data.id}" 
+                        data-type="${isPdf ? 'pdf' : 'video'}" 
+                        data-url="${data.file_url || ''}">
+                    ${isPdf ? "Open Document" : "Open Session"}
+                </button>
+            </div>
+        `;
+        
+        const btn = card.querySelector('.action-trigger-btn');
+        btn.addEventListener('click', (e) => {
+            const type = e.target.getAttribute('data-type');
+            const url = e.target.getAttribute('data-url');
+            const id = e.target.getAttribute('data-id');
+            if(type === 'pdf') {
+                if(url) openPDFInline(url);
+                else alert("No link attached.");
+            } else {
+                window.location.href = `classroom.html?id=${id}`;
+            }
+        });
+
+        grid.appendChild(card);
+    });
 };
 </script>
 </body>
